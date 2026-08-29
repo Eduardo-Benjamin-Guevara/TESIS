@@ -7,6 +7,7 @@ from app.routes.inventario import bp as inventario_bp
 from app.routes.lotes import bp as lotes_bp
 from app.routes.main import bp as main_bp
 from app.routes.monitoreo import bp as monitoreo_bp
+from app.routes.notificaciones import bp as notificaciones_bp
 from app.routes.usuarios import bp as usuarios_bp
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "lotes_bp",
     "main_bp",
     "monitoreo_bp",
+    "notificaciones_bp",
     "usuarios_bp",
 ]

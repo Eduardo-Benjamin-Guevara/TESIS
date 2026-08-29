@@ -6,6 +6,7 @@ from app.models.alimento import Alimento
 from app.models.categoria import Categoria, CATEGORIAS_DEFECTO
 from app.models.lote import Lote
 from app.models.movimiento import Movimiento, TipoMovimiento
+from app.models.notificacion import NotificacionLeida
 from app.models.usuario import RolUsuario, Usuario
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "CATEGORIAS_DEFECTO",
     "Lote",
     "Movimiento",
+    "NotificacionLeida",
     "RolUsuario",
     "TipoMovimiento",
     "Usuario",

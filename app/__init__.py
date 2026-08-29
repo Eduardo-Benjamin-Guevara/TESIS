@@ -109,6 +109,7 @@ def create_app(config_name: str | None = None) -> Flask:
         lotes_bp,
         main_bp,
         monitoreo_bp,
+        notificaciones_bp,
         usuarios_bp,
     )
 
@@ -121,6 +122,7 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(usuarios_bp)
     app.register_blueprint(alertas_bp)
     app.register_blueprint(monitoreo_bp)
+    app.register_blueprint(notificaciones_bp)
 
     # Registrar errores
     registrar_errores(app)
@@ -135,14 +137,19 @@ def create_app(config_name: str | None = None) -> Flask:
     def inyectar_contexto():
         from flask_login import current_user
 
-        from app.services import alertas_service, categoria_service
+        from app.services import alertas_service, categoria_service, notificaciones_service
 
         contexto = {"categorias": categoria_service.listar()}
         # Contador de alertas para el badge del sidebar (solo con sesión)
         if current_user.is_authenticated:
             contexto["alerta_total"] = alertas_service.contar()["total"]
+            # Notificaciones no leídas para la campana del topbar
+            contexto["notif_no_leidas"] = notificaciones_service.notificaciones_usuario(
+                current_user
+            )["no_leidas"]
         else:
             contexto["alerta_total"] = 0
+            contexto["notif_no_leidas"] = 0
         return contexto
 
     return app

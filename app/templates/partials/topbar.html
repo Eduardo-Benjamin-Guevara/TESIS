@@ -1,25 +1,65 @@
 <header class="topbar">
-    <button class="btn btn-icon sidebar-toggle d-lg-none" id="sidebarToggle">
+    <button class="btn btn-icon sidebar-toggle d-lg-none" id="sidebarToggle" type="button" aria-label="Abrir menú">
         <i class="bi bi-list"></i>
     </button>
 
-    <div class="topbar-search d-none d-md-flex">
+    <form class="topbar-search d-none d-md-flex" action="{{ url_for('alimentos.index') }}" method="get" role="search">
         <i class="bi bi-search"></i>
-        <span class="text-muted small">Buscar...</span>
-    </div>
+        <input type="text" name="q" class="topbar-search-input" placeholder="Buscar alimentos..." aria-label="Buscar">
+    </form>
 
     <div class="topbar-right">
-        <button class="btn btn-icon position-relative" title="Notificaciones">
-            <i class="bi bi-bell"></i>
-            {% if notificaciones|default(0) > 0 %}
-            <span class="badge badge-dot"></span>
-            {% endif %}
+        <button class="btn btn-icon" id="themeToggle" type="button" title="Cambiar tema" aria-label="Cambiar tema">
+            <i class="bi bi-moon-stars" id="themeIcon"></i>
         </button>
-        <div class="user-chip">
-            <div class="avatar">{{ current_user.nombre[:1]|upper }}</div>
-            <div class="d-none d-md-block">
-                <div class="user-name">{{ current_user.nombre }}</div>
-                <div class="user-rol">{{ current_user.rol }}</div>
+
+        <!-- Campana de notificaciones -->
+        <div class="notif-wrap position-relative" id="notifWrap">
+            <button class="btn btn-icon position-relative" id="notifToggle" type="button"
+                    title="Notificaciones" aria-label="Notificaciones" aria-haspopup="true" aria-expanded="false">
+                <i class="bi bi-bell"></i>
+                <span class="badge badge-count d-none" id="notifCount">0</span>
+            </button>
+            <div class="notif-panel" id="notifPanel" hidden>
+                <div class="notif-head">
+                    <span class="fw-semibold">Notificaciones</span>
+                    <button class="btn btn-link btn-sm p-0" id="notifMarkAll" type="button">
+                        Marcar todas como leídas
+                    </button>
+                </div>
+                <div class="notif-list" id="notifList">
+                    <div class="notif-loading text-muted small p-3 text-center">
+                        <span class="spinner-border spinner-border-sm me-1"></span> Cargando...
+                    </div>
+                </div>
+                <div class="notif-foot">
+                    <a href="{{ url_for('alertas.index') }}" class="small">Ver todas las alertas</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú de usuario -->
+        <div class="user-menu position-relative" id="userMenu">
+            <button class="user-chip btn" id="userToggle" type="button"
+                    aria-haspopup="true" aria-expanded="false">
+                <div class="avatar">{{ current_user.nombre[:1]|upper }}</div>
+                <div class="d-none d-md-block text-start">
+                    <div class="user-name">{{ current_user.nombre }}</div>
+                    <div class="user-rol">{{ current_user.rol }}</div>
+                </div>
+                <i class="bi bi-chevron-down small text-muted d-none d-md-block"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end shadow border-0" id="userDropdown" hidden>
+                <div class="px-3 py-2 border-bottom">
+                    <div class="fw-semibold">{{ current_user.nombre }}</div>
+                    <div class="text-muted small">@{{ current_user.usuario }}</div>
+                </div>
+                <a class="dropdown-item" href="{{ url_for('main.panel') }}"><i class="bi bi-speedometer2 me-2"></i>Panel</a>
+                {% if current_user.es_admin %}
+                <a class="dropdown-item" href="{{ url_for('usuarios.index') }}"><i class="bi bi-people me-2"></i>Usuarios</a>
+                {% endif %}
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a>
             </div>
         </div>
     </div>
