@@ -2,7 +2,11 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
 
-from app.services import alimento_service, auth_service
+from app.services import (
+    alertas_service,
+    alimento_service,
+    auth_service,
+)
 
 bp = Blueprint("main", __name__)
 
@@ -14,9 +18,13 @@ def panel():
     stock_bajo = [
         a for a in alimento_service.listar() if a.stock_bajo
     ]
+    alertas = alertas_service.contar()
+    vencimiento = alertas_service.proximos_a_vencer()
     return render_template(
         "main/panel.html",
         total_alimentos=total_alimentos,
         stock_bajo=stock_bajo,
+        alertas=alertas,
+        vencimiento=vencimiento,
         usuario=auth_service.usuario_sesion(),
     )

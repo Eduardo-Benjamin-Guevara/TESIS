@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Próximos a vencer{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Próximos a vencer</h1>
+        <p class="text-muted mb-0">Lotes con fecha de vencimiento cercana o ya vencida, priorizados por urgencia.</p>
+    </div>
+    <a href="{{ url_for('alertas.index') }}" class="btn btn-light border">
+        <i class="bi bi-arrow-left me-1"></i> Volver a alertas
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if vencimiento %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Prioridad</th>
+                        <th>Alimento</th>
+                        <th>Lote</th>
+                        <th>Vence</th>
+                        <th class="text-end">Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in vencimiento %}
+                    <tr>
+                        <td>
+                            {% set b = badges.get(a.nivel, ('', '')) %}
+                            <span class="badge {{ b[1] }}">{{ b[0] }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ a.alimento.nombre }}</div>
+                            <small class="text-muted">{{ a.alimento.codigo }}</small>
+                        </td>
+                        <td><span class="small">{{ a.lote.codigo or ('Lote ' ~ a.lote.id) }}</span></td>
+                        <td>
+                            {{ a.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                            {% if a.dias < 0 %}
+                            <span class="badge bg-danger ms-1">vencido</span>
+                            {% elif a.dias == 0 %}
+                            <span class="badge bg-danger ms-1">hoy</span>
+                            {% else %}
+                            <span class="text-muted small">({{ a.dias }} d)</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">{{ a.cantidad }} {{ a.alimento.unidad_medida }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay lotes próximos a vencer en los próximos días.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

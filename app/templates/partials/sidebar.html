@@ -38,6 +38,14 @@
             <i class="bi bi-clock-history"></i> Historial
         </a>
 
+        <span class="nav-section">Monitoreo</span>
+        <a href="{{ url_for('alertas.index') }}" class="nav-link {{ 'active' if request.blueprint == 'alertas' else '' }}">
+            <i class="bi bi-bell"></i> Alertas
+            {% if alerta_total %}
+            <span class="ms-auto badge {{ 'bg-danger' if alerta_total > 5 else 'bg-warning text-dark' }} rounded-pill">{{ alerta_total }}</span>
+            {% endif %}
+        </a>
+
         {% if current_user.es_admin %}
         <span class="nav-section">Administración</span>
         <a href="{{ url_for('usuarios.index') }}" class="nav-link {{ 'active' if request.blueprint == 'usuarios' else '' }}">

@@ -102,6 +102,7 @@ def create_app(config_name: str | None = None) -> Flask:
     # Registrar blueprints
     from app.routes import (
         alimentos_bp,
+        alertas_bp,
         auth_bp,
         categorias_bp,
         inventario_bp,
@@ -117,6 +118,7 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(inventario_bp)
     app.register_blueprint(lotes_bp)
     app.register_blueprint(usuarios_bp)
+    app.register_blueprint(alertas_bp)
 
     # Registrar errores
     registrar_errores(app)
@@ -126,11 +128,19 @@ def create_app(config_name: str | None = None) -> Flask:
 
     registrar_cli(app)
 
-    # Contexto global para plantillas: lista de categorías disponibles
+    # Contexto global para plantillas: categorías y resumen de alertas
     @app.context_processor
     def inyectar_contexto():
-        from app.services import categoria_service
+        from flask_login import current_user
 
-        return {"categorias": categoria_service.listar()}
+        from app.services import alertas_service, categoria_service
+
+        contexto = {"categorias": categoria_service.listar()}
+        # Contador de alertas para el badge del sidebar (solo con sesión)
+        if current_user.is_authenticated:
+            contexto["alerta_total"] = alertas_service.contar()["total"]
+        else:
+            contexto["alerta_total"] = 0
+        return contexto
 
     return app
