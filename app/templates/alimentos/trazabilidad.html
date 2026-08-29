@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Trazabilidad de {{ data.alimento.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Trazabilidad: {{ data.alimento.nombre }}</h1>
+        <p class="text-muted mb-0">Código {{ data.alimento.codigo }} · Historial completo de movimientos.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('alimentos.detalle', alimento_id=data.alimento.id) }}" class="btn btn-light border">
+            <i class="bi bi-arrow-left me-1"></i> Volver al detalle
+        </a>
+        <a href="{{ url_for('alimentos.qr', alimento_id=data.alimento.id) }}" class="btn btn-outline-primary" target="_blank">
+            <i class="bi bi-qr-code me-1"></i> QR
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-box-arrow-in-down"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ "%.2f"|format(data.total_entradas) }}</span>
+                <span class="stat-label">Total entradas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-box-arrow-up-right"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ "%.2f"|format(data.total_salidas) }}</span>
+                <span class="stat-label">Total salidas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-box-seam"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ "%.2f"|format(data.alimento.stock_actual) }}</span>
+                <span class="stat-label">Stock actual</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Movimientos del alimento</h5>
+    </div>
+    <div class="card-body">
+        {% if data.movimientos %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th class="text-end">Cantidad</th>
+                        <th class="text-end">Stock resultante</th>
+                        <th>Lote</th>
+                        <th>Motivo</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in data.movimientos %}
+                    <tr>
+                        <td><span class="small text-nowrap">{{ m.fecha.strftime('%d/%m/%Y %H:%M') }}</span></td>
+                        <td>
+                            {% if m.es_entrada %}
+                            <span class="badge bg-success-subtle text-success border"><i class="bi bi-plus"></i> Entrada</span>
+                            {% else %}
+                            <span class="badge bg-primary-subtle text-primary border"><i class="bi bi-dash"></i> Salida</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end fw-semibold {{ 'text-success' if m.es_entrada else 'text-primary' }}">
+                            {{ '+' if m.es_entrada else '-' }}{{ m.cantidad }}
+                        </td>
+                        <td class="text-end">{{ m.stock_resultante }}</td>
+                        <td>
+                            {% if m.lote %}
+                            <span class="small">{{ m.lote.codigo or ('Lote ' ~ m.lote.id) }}</span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="small">{{ m.motivo or '—' }}</span></td>
+                        <td><span class="small">{{ m.usuario.nombre_usuario }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-clock-history fs-1 d-block mb-2"></i>
+            <p class="mb-0">Este alimento aún no tiene movimientos registrados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

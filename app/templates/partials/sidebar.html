@@ -48,6 +48,9 @@
         <a href="{{ url_for('monitoreo.reportes') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.reportes' else '' }}">
             <i class="bi bi-file-earmark-text"></i> Reportes
         </a>
+        <a href="{{ url_for('monitoreo.recomendaciones') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.recomendaciones' else '' }}">
+            <i class="bi bi-cart-check"></i> Recomendaciones
+        </a>
         <a href="{{ url_for('alertas.index') }}" class="nav-link {{ 'active' if request.blueprint == 'alertas' else '' }}">
             <i class="bi bi-bell"></i> Alertas
             {% if alerta_total %}

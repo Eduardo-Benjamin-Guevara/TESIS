@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Recomendaciones de compra{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Recomendaciones de compra</h1>
+        <p class="text-muted mb-0">Sugerencias de reabastecimiento para alimentos con stock por debajo del mínimo.</p>
+    </div>
+    <a href="{{ url_for('monitoreo.dashboard') }}" class="btn btn-light border">
+        <i class="bi bi-arrow-left me-1"></i> Dashboard
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if items %}
+        <div class="alert alert-info py-2">
+            <i class="bi bi-lightbulb me-1"></i>
+            La cantidad sugerida busca alcanzar el doble del stock mínimo (margen de
+            seguridad). Prioriza los alimentos sin stock.
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Prioridad</th>
+                        <th>Código</th>
+                        <th>Alimento</th>
+                        <th>Categoría</th>
+                        <th class="text-end">Stock actual</th>
+                        <th class="text-end">Mínimo</th>
+                        <th class="text-end">Faltante</th>
+                        <th class="text-end">Sugerido comprar</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in items %}
+                    <tr class="{{ 'table-danger' if r.urgente else '' }}">
+                        <td>
+                            {% if r.urgente %}
+                            <span class="badge bg-danger">Urgente</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Recomendado</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ r.alimento.codigo }}</span></td>
+                        <td>
+                            <div class="fw-semibold">{{ r.alimento.nombre }}</div>
+                            <small class="text-muted">{{ r.alimento.unidad_medida }}</small>
+                        </td>
+                        <td><span class="badge bg-soft">{{ r.alimento.categoria }}</span></td>
+                        <td class="text-end"><span class="badge bg-danger">{{ r.actual }}</span></td>
+                        <td class="text-end">{{ r.minimo }}</td>
+                        <td class="text-end">{{ "%.2f"|format(r.faltante) }}</td>
+                        <td class="text-end fw-semibold text-success">{{ "%.2f"|format(r.cantidad_sugerida) }}</td>
+                        <td>
+                            {% if current_user.rol in ['admin', 'encargado'] %}
+                            <a href="{{ url_for('inventario.nueva_entrada') }}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-box-arrow-in-down me-1"></i> Registrar entrada
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-cart-check fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay recomendaciones de compra. Todos los alimentos están por encima de su stock mínimo.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
