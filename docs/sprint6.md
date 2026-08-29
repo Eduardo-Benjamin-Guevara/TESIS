@@ -10,6 +10,8 @@
   marcar todas como leídas con persistencia por usuario.
 - **Cambio de tema claro/oscuro** persistido, con detección automática de la
   preferencia del sistema.
+- **Sidebar retráctil (colapsable)** en escritorio: se contrae a una versión
+  reducida de iconos y se expande con un botón; la preferencia se recuerda.
 - **Responsive mejorado**: fondo oscuro al abrir el menú en móvil, cierre
   automático al navegar, tablas con desplazamiento y topbar adaptada.
 - **Extras profesionales**: búsqueda global funcional, menú de usuario y
@@ -52,6 +54,11 @@ pendientes.
 
 ### Responsive
 
+- **Sidebar retráctil**: en escritorio un botón (chevron) contrae el menú a una
+  versión de solo iconos; al colapsar, el contenido principal se expande y se
+  muestran tooltips con el nombre de cada opción. La preferencia se guarda en
+  `localStorage`. En móvil se conserva el comportamiento off-canvas (el colapso
+  no aplica).
 - Fondo oscuro (`sidebar-backdrop`) al abrir el sidebar en pantallas pequeñas.
 - Cierre automático del sidebar al hacer clic en cualquier enlace de navegación.
 - Ajustes de tipografía/tamaño para pantallas muy pequeñas y tablas con
@@ -81,7 +88,7 @@ pendientes.
 
 Nuevo archivo `tests/test_notificaciones.py`.
 
-- **71 → 79 pruebas**, todas pasando.
+- **71 → 81 pruebas**, todas pasando.
 - Cobertura: notificaciones sin alertas, generación y estado no leído,
   marcar-leídas reduce el contador y persiste, contenido/mensaje de las alertas
   de vencimiento, rutas JSON y marcar-leídas (con sesión) y redirección sin
@@ -93,6 +100,7 @@ Nuevo archivo `tests/test_notificaciones.py`.
 ## Verificación de requerimientos
 
 - [x] Diseño **responsive** (backdrop móvil, cierre al navegar, tablas).
+- [x] **Sidebar retráctil** (colapsable a iconos, con persistencia).
 - [x] **Sistema de notificaciones funcional** (campana real, contador, marcar leídas).
 - [x] **Cambio de tema** claro/oscuro persisto con detección del sistema.
 - [x] Extras profesionales (búsqueda global, menú de usuario, accesibilidad, CSRF AJAX).

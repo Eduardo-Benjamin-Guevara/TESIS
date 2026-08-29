@@ -72,6 +72,46 @@
             });
         }
 
+        // ---- Sidebar colapsable (retráctil) en escritorio ----
+        var layout = document.querySelector(".app-layout");
+        var collapseBtn = document.getElementById("sidebarCollapse");
+        function guardarColapso(colapsado) {
+            try { localStorage.setItem("sidebarColapsado", colapsado ? "1" : "0"); } catch (e) {}
+        }
+        function actualizarTooltips() {
+            if (!layout || window.innerWidth < 992) { return; }
+            var colapsado = layout.classList.contains("sidebar-collapsed");
+            layout.querySelectorAll(".nav-link").forEach(function (enlace) {
+                var span = enlace.querySelector("span:not(.ms-auto)");
+                if (colapsado) {
+                    if (span && !enlace.title) { enlace.title = span.textContent.trim(); }
+                    var back = enlace.querySelector("span.badge");
+                    if (back) { back.style.display = "none"; }
+                } else {
+                    enlace.removeAttribute("title");
+                    var badge = enlace.querySelector("span.badge");
+                    if (badge) { badge.style.display = ""; }
+                }
+            });
+        }
+        function aplicarEstadoColapso() {
+            if (window.innerWidth < 992) { return; } // el colapso solo aplica en escritorio
+            var guardado = "0";
+            try { guardado = localStorage.getItem("sidebarColapsado") || "0"; } catch (e) {}
+            if (guardado === "1" && layout) {
+                layout.classList.add("sidebar-collapsed");
+            }
+            actualizarTooltips();
+        }
+        if (collapseBtn && layout) {
+            collapseBtn.addEventListener("click", function () {
+                var colapsado = layout.classList.toggle("sidebar-collapsed");
+                guardarColapso(colapsado);
+                actualizarTooltips();
+            });
+        }
+        aplicarEstadoColapso();
+
         // ---- Notificaciones ----
         var notifToggle = document.getElementById("notifToggle");
         var notifPanel = document.getElementById("notifPanel");

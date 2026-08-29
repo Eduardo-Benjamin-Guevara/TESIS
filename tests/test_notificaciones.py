@@ -129,3 +129,18 @@ def test_topbar_incluye_botones_profesionales(cliente_autenticado):
 def test_meta_csrf_presente(cliente_autenticado):
     resp = cliente_autenticado.get("/")
     assert 'name="csrf-token"' in resp.get_data(as_text=True)
+
+
+def test_sidebar_colapsable_presente(cliente_autenticado):
+    resp = cliente_autenticado.get("/")
+    html = resp.get_data(as_text=True)
+    assert "sidebarCollapse" in html        # botón de colapso
+    assert "sidebar-brand" in html
+    assert "brand-mark" in html
+
+
+def test_css_incluye_colapso(client):
+    resp = client.get("/static/css/app.css")
+    css = resp.get_data(as_text=True)
+    assert "sidebar-collapsed" in css
+    assert "--sidebar-w-collapsed" in css or "--sidebar-w" in css
