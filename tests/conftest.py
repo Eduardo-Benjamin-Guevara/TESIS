@@ -3,7 +3,8 @@ import pytest
 
 from app import create_app
 from app.extensions import db
-from app.models import RolUsuario, Usuario
+from app.models import Categoria, RolUsuario, Usuario
+from app.services.init_services import sembrar_categorias
 
 
 @pytest.fixture()
@@ -16,6 +17,7 @@ def app():
     )
     with app.app_context():
         db.create_all()
+        sembrar_categorias()  # categorías por defecto
         yield app
         db.session.remove()
         db.drop_all()
@@ -73,6 +75,13 @@ def encargado(app):
         return crear_encargado()
 
 
+@pytest.fixture()
+def categoria_id(app):
+    """Devuelve el id de una categoría existente (granos)."""
+    with app.app_context():
+        return Categoria.query.filter_by(nombre="granos").first().id
+
+
 def login(client, usuario="admin", password="admin123"):
     """Autentica al cliente de pruebas y devuelve el usuario."""
     return client.post(
@@ -89,11 +98,10 @@ def cliente_autenticado(client, admin):
     return client
 
 
-# Datos básicos para crear un alimento
+# Datos básicos para crear un alimento (categoria_id se completa por fixture)
 DATOS_ALIMENTO = {
     "codigo": "ARROZ001",
     "nombre": "Arroz extra",
-    "categoria": "granos",
     "unidad_medida": "kg",
     "stock_actual": "10",
     "stock_minimo": "3",

@@ -100,12 +100,25 @@ def create_app(config_name: str | None = None) -> Flask:
         return db.session.get(Usuario, int(user_id))
 
     # Registrar blueprints
-    from app.routes import auth_bp, alimentos_bp, main_bp, usuarios_bp
+    from app.routes import (
+        alimentos_bp,
+        alertas_bp,
+        auth_bp,
+        categorias_bp,
+        inventario_bp,
+        lotes_bp,
+        main_bp,
+        usuarios_bp,
+    )
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(alimentos_bp)
+    app.register_blueprint(categorias_bp)
+    app.register_blueprint(inventario_bp)
+    app.register_blueprint(lotes_bp)
     app.register_blueprint(usuarios_bp)
+    app.register_blueprint(alertas_bp)
 
     # Registrar errores
     registrar_errores(app)
@@ -115,11 +128,19 @@ def create_app(config_name: str | None = None) -> Flask:
 
     registrar_cli(app)
 
-    # Contexto global para plantillas
-    from app.models.alimento import CategoriaAlimento
-
+    # Contexto global para plantillas: categorías y resumen de alertas
     @app.context_processor
     def inyectar_contexto():
-        return {"categorias_alimento": CategoriaAlimento.VALORES}
+        from flask_login import current_user
+
+        from app.services import alertas_service, categoria_service
+
+        contexto = {"categorias": categoria_service.listar()}
+        # Contador de alertas para el badge del sidebar (solo con sesión)
+        if current_user.is_authenticated:
+            contexto["alerta_total"] = alertas_service.contar()["total"]
+        else:
+            contexto["alerta_total"] = 0
+        return contexto
 
     return app

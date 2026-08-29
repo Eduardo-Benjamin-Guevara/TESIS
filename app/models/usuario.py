@@ -35,6 +35,8 @@ class Usuario(db.Model, UserMixin):
     fecha_creacion = db.Column(db.DateTime, nullable=False, default=utcnow)
     ultima_sesion = db.Column(db.DateTime, nullable=True)
 
+    movimientos = db.relationship("Movimiento", back_populates="usuario", lazy="dynamic")
+
     # -- Contraseña -----------------------------------------------------
     def set_password(self, password: str) -> None:
         """Genera y almacena el hash seguro de la contraseña."""

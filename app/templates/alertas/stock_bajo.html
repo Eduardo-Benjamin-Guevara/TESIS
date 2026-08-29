@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Stock bajo{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Stock bajo</h1>
+        <p class="text-muted mb-0">Alimentos cuyo stock está en o por debajo del mínimo, priorizados por severidad.</p>
+    </div>
+    <a href="{{ url_for('alertas.index') }}" class="btn btn-light border">
+        <i class="bi bi-arrow-left me-1"></i> Volver a alertas
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if stock %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Prioridad</th>
+                        <th>Código</th>
+                        <th>Alimento</th>
+                        <th>Categoría</th>
+                        <th class="text-end">Stock actual</th>
+                        <th class="text-end">Stock mínimo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in stock %}
+                    <tr>
+                        <td>
+                            {% set b = badges.get(a.nivel, ('', '')) %}
+                            <span class="badge {{ b[1] }}">{{ b[0] }}</span>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ a.alimento.codigo }}</span></td>
+                        <td>
+                            <div class="fw-semibold">{{ a.alimento.nombre }}</div>
+                            <small class="text-muted">{{ a.alimento.unidad_medida }}</small>
+                        </td>
+                        <td>{{ a.alimento.categoria }}</td>
+                        <td class="text-end"><span class="badge bg-danger">{{ a.stock }}</span></td>
+                        <td class="text-end">{{ a.minimo }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('alimentos.detalle', alimento_id=a.alimento.id) }}" class="btn btn-outline-primary">Ver</a>
+                                {% if current_user.rol in ['admin', 'encargado'] %}
+                                <a href="{{ url_for('inventario.nueva_entrada') }}" class="btn btn-outline-success">Reponer</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-emoji-smile fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay alimentos con stock bajo actualmente.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

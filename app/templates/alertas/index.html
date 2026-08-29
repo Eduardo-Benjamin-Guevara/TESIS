@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Alertas{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Sistema de alertas</h1>
+        <p class="text-muted mb-0">Notificaciones priorizadas de próximos a vencer y stock bajo.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('alertas.vence_pronto') }}" class="btn btn-outline-primary">
+            <i class="bi bi-calendar2-x me-1"></i> Próximos a vencer
+        </a>
+        <a href="{{ url_for('alertas.stock_bajo') }}" class="btn btn-outline-warning">
+            <i class="bi bi-box-seam me-1"></i> Stock bajo
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger-subtle text-danger"><i class="bi bi-bell"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ resumen.total }}</span>
+                <span class="stat-label">Alertas totales</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger-subtle text-danger"><i class="bi bi-x-octagon"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ resumen.critica }}</span>
+                <span class="stat-label">Críticas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-subtle text-warning"><i class="bi bi-exclamation-diamond"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ resumen.alta }}</span>
+                <span class="stat-label">Prioridad alta</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-info-circle"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ resumen.media }}</span>
+                <span class="stat-label">Prioridad media</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="bi bi-bell me-2 text-danger"></i>Todas las alertas (por prioridad)</h5>
+    </div>
+    <div class="card-body">
+        {% if alertas %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Prioridad</th>
+                        <th>Tipo</th>
+                        <th>Alimento</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in alertas %}
+                    <tr>
+                        <td>
+                            {% set b = badges.get(a.nivel, ('', '')) %}
+                            <span class="badge {{ b[1] }}">{{ b[0] }}</span>
+                        </td>
+                        <td>
+                            {% if a.tipo == 'vencimiento' %}
+                            <span class="badge bg-secondary-subtle text-secondary border"><i class="bi bi-calendar2-x"></i> Vencimiento</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border"><i class="bi bi-box-seam"></i> Stock bajo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ a.alimento.nombre }}</div>
+                            <small class="text-muted">{{ a.alimento.codigo }}</small>
+                        </td>
+                        <td>
+                            {% if a.tipo == 'vencimiento' %}
+                            <span class="text-muted">
+                                Vence {{ a.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                                {% if a.dias < 0 %}
+                                · <span class="text-danger fw-semibold">vencido</span>
+                                {% elif a.dias == 0 %}
+                                · <span class="text-danger fw-semibold">vence hoy</span>
+                                {% else %}
+                                · <span class="fw-semibold">en {{ a.dias }} día{{ 's' if a.dias != 1 }}</span>
+                                {% endif %}
+                                · {{ a.cantidad }} {{ a.alimento.unidad_medida }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">
+                                Stock <span class="fw-semibold text-danger">{{ a.stock }}</span>
+                                de mínimo {{ a.minimo }} {{ a.alimento.unidad_medida }}
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-emoji-smile fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay alertas activas. Todo el inventario está en orden.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

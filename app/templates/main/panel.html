@@ -56,6 +56,52 @@
 
 <div class="row g-3">
     <div class="col-lg-7">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-calendar2-x me-2 text-danger"></i>Próximos a vencer</h5>
+                <a href="{{ url_for('alertas.vence_pronto') }}" class="btn btn-sm btn-outline-secondary">Ver todos</a>
+            </div>
+            <div class="card-body">
+                {% if vencimiento %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Alimento</th>
+                                <th>Lote</th>
+                                <th>Vence</th>
+                                <th class="text-end">Cant.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in vencimiento[:6] %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">{{ a.alimento.nombre }}</div>
+                                    <small class="text-muted">{{ a.alimento.codigo }}</small>
+                                </td>
+                                <td><span class="small">{{ a.lote.codigo or ('Lote ' ~ a.lote.id) }}</span></td>
+                                <td>
+                                    {{ a.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                                    {% if a.dias < 0 %}<span class="badge bg-danger ms-1">vencido</span>
+                                    {% elif a.dias == 0 %}<span class="badge bg-danger ms-1">hoy</span>
+                                    {% else %}<span class="text-muted small">({{ a.dias }}d)</span>{% endif %}
+                                </td>
+                                <td class="text-end">{{ a.cantidad }} {{ a.alimento.unidad_medida }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+                    <p class="mb-0">No hay lotes próximos a vencer.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Alimentos con stock bajo</h5>
@@ -111,6 +157,14 @@
                 </a>
                 <a href="{{ url_for('alimentos.index') }}?inactivos=1" class="btn btn-light border text-start">
                     <i class="bi bi-archive me-2 text-secondary"></i> Ver alimentos inactivos
+                </a>
+                <a href="{{ url_for('alertas.index') }}"
+                   class="btn {{ 'btn-outline-danger' if alertas.total else 'btn-light border' }} text-start">
+                    <i class="bi bi-bell me-2 text-danger"></i> Ver alertas
+                    {% if alertas.total %}<span class="badge bg-danger rounded-pill ms-auto">{{ alertas.total }}</span>{% endif %}
+                </a>
+                <a href="{{ url_for('inventario.historial') }}" class="btn btn-light border text-start">
+                    <i class="bi bi-clock-history me-2 text-secondary"></i> Historial de movimientos
                 </a>
                 {% if current_user.es_admin %}
                 <a href="{{ url_for('usuarios.index') }}" class="btn btn-light border text-start">

@@ -29,8 +29,8 @@
                 <label class="form-label small mb-1" for="categoria">Categoría</label>
                 <select id="categoria" name="categoria" class="form-select">
                     <option value="">Todas</option>
-                    {% for c in categorias_alimento %}
-                    <option value="{{ c }}" {{ 'selected' if categoria == c else '' }}>{{ c|capitalize }}</option>
+                    {% for c in categorias %}
+                    <option value="{{ c.id }}" {{ 'selected' if categoria_id == c.id|string else '' }}>{{ c.nombre|capitalize }}</option>
                     {% endfor %}
                 </select>
             </div>
