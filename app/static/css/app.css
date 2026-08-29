@@ -90,15 +90,13 @@ body {
     .sidebar-collapse-btn { display: inline-flex; }
 }
 
-/* Ocultar textos cuando está colapsado */
+/* Ocultar textos cuando está colapsado: solo iconos */
 .app-layout.sidebar-collapsed .brand-mark .brand-text,
-.app-layout.sidebar-collapsed .nav-link > span:not(.ms-auto),
+.app-layout.sidebar-collapsed .nav-link .nav-text,
+.app-layout.sidebar-collapsed .nav-link .badge,
 .app-layout.sidebar-collapsed .nav-section,
-.app-layout.sidebar-collapsed .logout-link > span {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-    white-space: nowrap;
+.app-layout.sidebar-collapsed .logout-link .nav-text {
+    display: none;
 }
 .app-layout.sidebar-collapsed .sidebar-brand { justify-content: center; padding: 1.25rem 0.6rem; gap: 0; }
 .app-layout.sidebar-collapsed .brand-mark { gap: 0; }
@@ -108,7 +106,7 @@ body {
 .app-layout.sidebar-collapsed .sidebar-collapse-btn { margin-left: 0; }
 .app-layout.sidebar-collapsed .sidebar-footer { display: flex; justify-content: center; padding: 1rem 0.4rem; }
 .app-layout.sidebar-collapsed .logout-link { justify-content: center; gap: 0; padding: 0.6rem 0; }
-.app-layout.sidebar-collapsed .nav-section { padding: 0.9rem 0 0.4rem; }
+.app-layout.sidebar-collapsed .nav-section { padding: 0; display: none; }
 
 .sidebar-brand {
     display: flex;

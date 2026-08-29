@@ -137,6 +137,7 @@ def test_sidebar_colapsable_presente(cliente_autenticado):
     assert "sidebarCollapse" in html        # botón de colapso
     assert "sidebar-brand" in html
     assert "brand-mark" in html
+    assert "nav-text" in html               # etiquetas envueltas para ocultarse al colapsar
 
 
 def test_css_incluye_colapso(client):

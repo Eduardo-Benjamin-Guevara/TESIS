@@ -16,49 +16,49 @@
     <nav class="sidebar-nav">
         <span class="nav-section">Principal</span>
         <a href="{{ url_for('main.panel') }}" class="nav-link {{ 'active' if request.endpoint == 'main.panel' else '' }}">
-            <i class="bi bi-speedometer2"></i> Panel
+            <i class="bi bi-speedometer2"></i><span class="nav-text">Panel</span>
         </a>
 
         <span class="nav-section">Inventario</span>
         <a href="{{ url_for('alimentos.index') }}" class="nav-link {{ 'active' if request.blueprint == 'alimentos' else '' }}">
-            <i class="bi bi-boxes"></i> Alimentos
+            <i class="bi bi-boxes"></i><span class="nav-text">Alimentos</span>
         </a>
         <a href="{{ url_for('categorias.index') }}" class="nav-link {{ 'active' if request.blueprint == 'categorias' else '' }}">
-            <i class="bi bi-tags"></i> Categorías
+            <i class="bi bi-tags"></i><span class="nav-text">Categorías</span>
         </a>
         <a href="{{ url_for('lotes.index') }}" class="nav-link {{ 'active' if request.blueprint == 'lotes' else '' }}">
-            <i class="bi bi-calendar2-range"></i> Fechas de vencimiento
+            <i class="bi bi-calendar2-range"></i><span class="nav-text">Fechas de vencimiento</span>
         </a>
 
         <span class="nav-section">Movimientos</span>
         <a href="{{ url_for('inventario.nueva_entrada') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.nueva_entrada' else '' }}">
-            <i class="bi bi-box-arrow-in-down"></i> Entradas
+            <i class="bi bi-box-arrow-in-down"></i><span class="nav-text">Entradas</span>
         </a>
         <a href="{{ url_for('inventario.nueva_salida') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.nueva_salida' else '' }}">
-            <i class="bi bi-box-arrow-up-right"></i> Salidas
+            <i class="bi bi-box-arrow-up-right"></i><span class="nav-text">Salidas</span>
         </a>
         <a href="{{ url_for('inventario.disponibilidad') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.disponibilidad' else '' }}">
-            <i class="bi bi-clipboard-check"></i> Disponibilidad
+            <i class="bi bi-clipboard-check"></i><span class="nav-text">Disponibilidad</span>
         </a>
         <a href="{{ url_for('inventario.historial') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.historial' else '' }}">
-            <i class="bi bi-clock-history"></i> Historial
+            <i class="bi bi-clock-history"></i><span class="nav-text">Historial</span>
         </a>
 
         <span class="nav-section">Monitoreo</span>
         <a href="{{ url_for('monitoreo.dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.dashboard' else '' }}">
-            <i class="bi bi-speedometer2"></i> Dashboard
+            <i class="bi bi-speedometer2"></i><span class="nav-text">Dashboard</span>
         </a>
         <a href="{{ url_for('monitoreo.stock') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.stock' else '' }}">
-            <i class="bi bi-boxes"></i> Stock en tiempo real
+            <i class="bi bi-boxes"></i><span class="nav-text">Stock en tiempo real</span>
         </a>
         <a href="{{ url_for('monitoreo.reportes') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.reportes' else '' }}">
-            <i class="bi bi-file-earmark-text"></i> Reportes
+            <i class="bi bi-file-earmark-text"></i><span class="nav-text">Reportes</span>
         </a>
         <a href="{{ url_for('monitoreo.recomendaciones') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.recomendaciones' else '' }}">
-            <i class="bi bi-cart-check"></i> Recomendaciones
+            <i class="bi bi-cart-check"></i><span class="nav-text">Recomendaciones</span>
         </a>
         <a href="{{ url_for('alertas.index') }}" class="nav-link {{ 'active' if request.blueprint == 'alertas' else '' }}">
-            <i class="bi bi-bell"></i> Alertas
+            <i class="bi bi-bell"></i><span class="nav-text">Alertas</span>
             {% if alerta_total %}
             <span class="ms-auto badge {{ 'bg-danger' if alerta_total > 5 else 'bg-warning text-dark' }} rounded-pill">{{ alerta_total }}</span>
             {% endif %}
@@ -67,7 +67,7 @@
         {% if current_user.es_admin %}
         <span class="nav-section">Administración</span>
         <a href="{{ url_for('usuarios.index') }}" class="nav-link {{ 'active' if request.blueprint == 'usuarios' else '' }}">
-            <i class="bi bi-people"></i> Usuarios
+            <i class="bi bi-people"></i><span class="nav-text">Usuarios</span>
         </a>
         {% endif %}
     </nav>
@@ -75,7 +75,7 @@
     <div class="sidebar-footer">
         <a href="{{ url_for('auth.logout') }}" class="logout-link">
             <i class="bi bi-box-arrow-right"></i>
-            <span>Cerrar sesión</span>
+            <span class="nav-text">Cerrar sesión</span>
         </a>
     </div>
 </aside>

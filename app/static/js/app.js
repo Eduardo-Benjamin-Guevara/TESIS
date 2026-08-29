@@ -82,15 +82,11 @@
             if (!layout || window.innerWidth < 992) { return; }
             var colapsado = layout.classList.contains("sidebar-collapsed");
             layout.querySelectorAll(".nav-link").forEach(function (enlace) {
-                var span = enlace.querySelector("span:not(.ms-auto)");
+                var span = enlace.querySelector(".nav-text");
                 if (colapsado) {
                     if (span && !enlace.title) { enlace.title = span.textContent.trim(); }
-                    var back = enlace.querySelector("span.badge");
-                    if (back) { back.style.display = "none"; }
                 } else {
                     enlace.removeAttribute("title");
-                    var badge = enlace.querySelector("span.badge");
-                    if (badge) { badge.style.display = ""; }
                 }
             });
         }
