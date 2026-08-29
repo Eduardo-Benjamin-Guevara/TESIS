@@ -1,0 +1,52 @@
+/* ==========================================================================
+   Estilos de autenticación y páginas de error
+   ========================================================================== */
+
+.auth-body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1f3d2b 0%, #2f7d4f 60%, #3d9a63 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.auth-wrapper { width: 100%; max-width: 420px; }
+
+.auth-card { border-radius: 16px; overflow: hidden; }
+.auth-card .card-body { background: #fff; }
+
+.auth-logo {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto;
+    border-radius: 16px;
+    background: var(--primary-light, #e8f4ec);
+    color: var(--primary, #2f7d4f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.auth-body .btn-primary {
+    background: var(--primary, #2f7d4f);
+    border-color: var(--primary, #2f7d4f);
+}
+
+/* ---------------------------------------------------------------- Error */
+.error-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+.error-code {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #d8e5dc;
+    line-height: 1;
+}
+.error-icon { font-size: 2.5rem; color: var(--primary, #2f7d4f); }

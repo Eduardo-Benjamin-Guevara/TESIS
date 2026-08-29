@@ -1,0 +1,26 @@
+<header class="topbar">
+    <button class="btn btn-icon sidebar-toggle d-lg-none" id="sidebarToggle">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="topbar-search d-none d-md-flex">
+        <i class="bi bi-search"></i>
+        <span class="text-muted small">Buscar...</span>
+    </div>
+
+    <div class="topbar-right">
+        <button class="btn btn-icon position-relative" title="Notificaciones">
+            <i class="bi bi-bell"></i>
+            {% if notificaciones|default(0) > 0 %}
+            <span class="badge badge-dot"></span>
+            {% endif %}
+        </button>
+        <div class="user-chip">
+            <div class="avatar">{{ current_user.nombre[:1]|upper }}</div>
+            <div class="d-none d-md-block">
+                <div class="user-name">{{ current_user.nombre }}</div>
+                <div class="user-rol">{{ current_user.rol }}</div>
+            </div>
+        </div>
+    </div>
+</header>

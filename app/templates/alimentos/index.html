@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Alimentos{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Alimentos</h1>
+        <p class="text-muted mb-0">Registro, consulta y control de los alimentos del inventario.</p>
+    </div>
+    {% if current_user.rol in ['admin', 'encargado'] %}
+    <a href="{{ url_for('alimentos.nuevo') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo alimento
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small mb-1" for="q">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="q" name="q" class="form-control" value="{{ filtro }}" placeholder="Código o nombre del alimento">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="categoria">Categoría</label>
+                <select id="categoria" name="categoria" class="form-select">
+                    <option value="">Todas</option>
+                    {% for c in categorias_alimento %}
+                    <option value="{{ c }}" {{ 'selected' if categoria == c else '' }}>{{ c|capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="inactivos" name="inactivos" value="1" {{ 'checked' if incluir_inactivos else '' }}>
+                    <label class="form-check-label small" for="inactivos">Ver inactivos</label>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+                <a href="{{ url_for('alimentos.index') }}" class="btn btn-light border"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if alimentos %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th class="text-end">Stock</th>
+                        <th class="text-end">Stock mín.</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in alimentos %}
+                    <tr class="{{ 'table-secondary' if not a.activo else '' }}">
+                        <td><span class="badge bg-light text-dark border">{{ a.codigo }}</span></td>
+                        <td>
+                            <div class="fw-semibold">{{ a.nombre }}</div>
+                            <small class="text-muted">{{ a.unidad_medida }}</small>
+                        </td>
+                        <td><span class="badge bg-soft">{{ a.categoria }}</span></td>
+                        <td class="text-end">
+                            <span class="badge {{ 'bg-danger' if a.stock_bajo else 'bg-success-subtle text-success border' }}">{{ a.stock_actual }}</span>
+                        </td>
+                        <td class="text-end">{{ a.stock_minimo }}</td>
+                        <td>
+                            {% if a.activo %}
+                            <span class="badge bg-success-subtle text-success border">Activo</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('alimentos.detalle', alimento_id=a.id) }}" class="btn btn-outline-primary" title="Ver detalle"><i class="bi bi-eye"></i></a>
+                                {% if current_user.rol in ['admin', 'encargado'] %}
+                                <a href="{{ url_for('alimentos.editar', alimento_id=a.id) }}" class="btn btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
+                                {% endif %}
+                                {% if current_user.es_admin %}
+                                <form method="POST" action="{{ url_for('alimentos.cambiar_estado', alimento_id=a.id) }}" class="d-inline" onsubmit="return confirm('¿Seguro de cambiar el estado de este alimento?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    {% if a.activo %}
+                                    <button type="submit" class="btn btn-outline-danger" title="Desactivar"><i class="bi bi-archive"></i></button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-outline-success" title="Activar"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    {% endif %}
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            <p class="mb-0">No se encontraron alimentos con los criterios de búsqueda.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
