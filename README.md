@@ -321,8 +321,8 @@ documentado en `docs/sprintN.md`.
 | 1 | `sprint/1` | Registro y control de alimentos (usuarios, alimentos, categorías, fechas de vencimiento, consulta) | ✅ Completado |
 | 2 | `sprint/2` | Gestión de inventario (entradas, salidas, actualización de stock, disponibilidad, historial) | ✅ Completado |
 | 3 | `sprint/3` | Sistema de alertas (próximos a vencer, stock bajo, notificaciones, priorización) | ✅ Completado |
-| 4 | `sprint/4` | Monitoreo y reportes (dashboard, entradas/salidas, stock en tiempo real, reportes, indicadores) | ⏳ |
-| 5 | `sprint/5` | Funciones innovadoras (gráficos, QR, exportar reportes, recomendaciones, trazabilidad) | ⏳ |
+| 4 | `sprint/4` | Monitoreo y reportes (dashboard, entradas/salidas, stock en tiempo real, reportes, indicadores) | ✅ Completado |
+| 5 | `sprint/5` | Funciones innovadoras (gráficos, QR, exportar reportes, recomendaciones, trazabilidad) | ✅ Completado |
 
 Cada sprint incluye: **pruebas funcionales, verificación de requerimientos,
 identificación y corrección de errores, y evaluación del incremento**.

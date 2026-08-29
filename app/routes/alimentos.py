@@ -1,11 +1,26 @@
 """Rutas del CRUD de alimentos."""
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    Response,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import DecimalField, SelectField, StringField, TextAreaField
 from wtforms.validators import DataRequired, InputRequired, NumberRange, Optional
 
-from app.services import alimento_service, categoria_service, lote_service
+from app.services import (
+    alimento_service,
+    categoria_service,
+    lote_service,
+    qr_service,
+    trazabilidad_service,
+)
 from app.services.alimento_service import ErrorNegocio
 from app.utils.decorators import rol_requerido
 
@@ -141,6 +156,34 @@ def detalle(alimento_id):
         abort(404)
     lotes = lote_service.listar_por_alimento(alimento_id)
     return render_template("alimentos/detalle.html", alimento=alimento, lotes=lotes)
+
+
+@bp.route("/<int:alimento_id>/qr")
+@login_required
+def qr(alimento_id):
+    """Genera el código QR del alimento (imagen PNG)."""
+    alimento = alimento_service.obtener(alimento_id)
+    if alimento is None:
+        abort(404)
+    qr_png = qr_service.generar_qr(alimento)
+    return Response(
+        qr_png,
+        mimetype="image/png",
+        headers={
+            "Content-Disposition": f'inline; filename="qr_{alimento.codigo}.png"'
+        },
+    )
+
+
+@bp.route("/<int:alimento_id>/trazabilidad")
+@login_required
+def trazabilidad(alimento_id):
+    """Historial completo del alimento (trazabilidad total)."""
+    try:
+        datos = trazabilidad_service.trazabilidad_alimento(alimento_id)
+    except Exception:
+        abort(404)
+    return render_template("alimentos/trazabilidad.html", data=datos)
 
 
 @bp.post("/<int:alimento_id>/estado")

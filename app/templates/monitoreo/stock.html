@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Stock en tiempo real{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Stock en tiempo real</h1>
+        <p class="text-muted mb-0">Estado actualizado del inventario con desglose por lote.</p>
+    </div>
+    <a href="{{ url_for('monitoreo.dashboard') }}" class="btn btn-light border">
+        <i class="bi bi-arrow-left me-1"></i> Dashboard
+    </a>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small mb-1" for="q">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="q" name="q" class="form-control" value="{{ filtro }}" placeholder="Código o nombre">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="categoria">Categoría</label>
+                <select id="categoria" name="categoria" class="form-select">
+                    <option value="">Todas</option>
+                    {% for c in categorias %}
+                    <option value="{{ c.id }}" {{ 'selected' if categoria_id == c.id|string else '' }}>{{ c.nombre|capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if filas %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Alimento</th>
+                        <th>Categoría</th>
+                        <th class="text-end">Stock actual</th>
+                        <th class="text-end">Mínimo</th>
+                        <th>Estado</th>
+                        <th>Lotes activos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in filas %}
+                    <tr class="{{ 'table-warning' if f.alimento.stock_bajo else '' }}">
+                        <td><span class="badge bg-light text-dark border">{{ f.alimento.codigo }}</span></td>
+                        <td>
+                            <div class="fw-semibold">{{ f.alimento.nombre }}</div>
+                            <small class="text-muted">{{ f.alimento.unidad_medida }}</small>
+                        </td>
+                        <td><span class="badge bg-soft">{{ f.alimento.categoria }}</span></td>
+                        <td class="text-end">
+                            <span class="badge {{ 'bg-danger' if f.alimento.stock_bajo else 'bg-success-subtle text-success border' }}">
+                                {{ f.stock }}
+                            </span>
+                        </td>
+                        <td class="text-end">{{ f.alimento.stock_minimo }}</td>
+                        <td>
+                            {% if f.alimento.stock_bajo %}
+                            <span class="badge bg-warning text-dark border">Bajo</span>
+                            {% else %}
+                            <span class="badge bg-success-subtle text-success border">OK</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if f.lotes %}
+                            <span class="text-secondary small">{{ f.lotes|length }} lote{{ 's' if f.lotes|length != 1 }}</span>
+                            {% else %}
+                            <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            <p class="mb-0">No se encontraron alimentos.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

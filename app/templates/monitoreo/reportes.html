@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Reportes{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Reportes</h1>
+        <p class="text-muted mb-0">Reportes de vencimientos y de stock por categoría.</p>
+    </div>
+<a href="{{ url_for('monitoreo.dashboard') }}" class="btn btn-light border">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+        </a>
+        <a href="{{ url_for('monitoreo.exportar', formato='csv') }}" class="btn btn-outline-success">
+            <i class="bi bi-filetype-csv me-1"></i> Exportar CSV
+        </a>
+        <a href="{{ url_for('monitoreo.exportar', formato='xlsx') }}" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
+        </a>
+    </div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-calendar2-x me-2 text-danger"></i>Lotes por vencer / vencidos</h5>
+            </div>
+            <div class="card-body">
+                {% if vencimientos %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Alimento</th>
+                                <th>Lote</th>
+                                <th>Vence</th>
+                                <th class="text-end">Cantidad</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for l in vencimientos %}
+                            {% set dias = (l.fecha_vencimiento - hoy).days %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">{{ l.alimento.nombre }}</div>
+                                    <small class="text-muted">{{ l.alimento.codigo }}</small>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ l.codigo or ('Lote ' ~ l.id) }}</span></td>
+                                <td>{{ l.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
+                                <td class="text-end">{{ l.cantidad }} {{ l.alimento.unidad_medida }}</td>
+                                <td>
+                                    {% if dias < 0 %}
+                                    <span class="badge bg-danger">Vencido</span>
+                                    {% elif dias == 0 %}
+                                    <span class="badge bg-danger">Hoy</span>
+                                    {% elif dias <= 3 %}
+                                    <span class="badge bg-danger">Crítico</span>
+                                    {% elif dias <= 7 %}
+                                    <span class="badge bg-warning text-dark">Alta</span>
+                                    {% else %}
+                                    <span class="badge bg-info text-dark">Media</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+                    <p class="mb-0">No hay lotes próximos a vencer en el horizonte del reporte.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-pie-chart me-2 text-success"></i>Stock por categoría</h5>
+            </div>
+            <div class="card-body">
+                {% if por_categoria %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Categoría</th>
+                                <th class="text-end">Alimentos</th>
+                                <th class="text-end">Stock</th>
+                                <th class="text-end">Bajo mínimo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for f in por_categoria %}
+                            <tr>
+                                <td><span class="badge bg-soft">{{ f.categoria.nombre|capitalize }}</span></td>
+                                <td class="text-end">{{ f.cantidad }}</td>
+                                <td class="text-end">{{ "%.2f"|format(f.stock) }}</td>
+                                <td class="text-end">
+                                    {% if f.bajo %}
+                                    <span class="badge bg-danger">{{ f.bajo }}</span>
+                                    {% else %}
+                                    <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <p class="mb-0">No hay categorías registradas.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
