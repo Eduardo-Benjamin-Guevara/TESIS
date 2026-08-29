@@ -39,6 +39,15 @@
         </a>
 
         <span class="nav-section">Monitoreo</span>
+        <a href="{{ url_for('monitoreo.dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.dashboard' else '' }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('monitoreo.stock') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.stock' else '' }}">
+            <i class="bi bi-boxes"></i> Stock en tiempo real
+        </a>
+        <a href="{{ url_for('monitoreo.reportes') }}" class="nav-link {{ 'active' if request.endpoint == 'monitoreo.reportes' else '' }}">
+            <i class="bi bi-file-earmark-text"></i> Reportes
+        </a>
         <a href="{{ url_for('alertas.index') }}" class="nav-link {{ 'active' if request.blueprint == 'alertas' else '' }}">
             <i class="bi bi-bell"></i> Alertas
             {% if alerta_total %}

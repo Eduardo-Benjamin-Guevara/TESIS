@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Monitoreo y reportes{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Dashboard de monitoreo</h1>
+        <p class="text-muted mb-0">Indicadores en tiempo real del inventario de alimentos.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('monitoreo.stock') }}" class="btn btn-outline-primary"><i class="bi bi-boxes"></i> Stock</a>
+        <a href="{{ url_for('monitoreo.reportes') }}" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-text"></i> Reportes</a>
+    </div>
+</div>
+
+<!-- Fila 1: KPIs principales -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-boxes"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ kpis.total_alimentos }}</span>
+                <span class="stat-label">Alimentos activos</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-tags"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ kpis.total_categorias }}</span>
+                <span class="stat-label">Categorías</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-box-seam"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ "%.2f"|format(kpis.stock_total) }}</span>
+                <span class="stat-label">Stock total</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-check2-circle"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ kpis.con_stock }} / {{ kpis.total_alimentos }}</span>
+                <span class="stat-label">Con stock</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fila 2: alertas y movimientos -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger-subtle text-danger"><i class="bi bi-bell"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ kpis.alertas_activas }}</span>
+                <span class="stat-label">Alertas activas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-subtle text-warning"><i class="bi bi-calendar2-x"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ kpis.proximos_vencer }}</span>
+                <span class="stat-label">Próximos a vencer</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-box-arrow-in-down"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ kpis.entradas }}</span>
+                <span class="stat-label">Entradas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-box-arrow-up-right"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ kpis.salidas }}</span>
+                <span class="stat-label">Salidas</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Actividad reciente -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Actividad reciente</h5>
+                <a href="{{ url_for('inventario.historial') }}" class="btn btn-sm btn-outline-secondary">Historial</a>
+            </div>
+            <div class="card-body">
+                {% if actividad %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Alimento</th>
+                                <th class="text-end">Cant.</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in actividad %}
+                            <tr>
+                                <td><span class="small text-nowrap">{{ m.fecha.strftime('%d/%m %H:%M') }}</span></td>
+                                <td>
+                                    {% if m.es_entrada %}
+                                    <span class="badge bg-success-subtle text-success border"><i class="bi bi-plus"></i></span>
+                                    {% else %}
+                                    <span class="badge bg-primary-subtle text-primary border"><i class="bi bi-dash"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="small">{{ m.alimento.codigo }} · {{ m.alimento.nombre }}</span>
+                                </td>
+                                <td class="text-end fw-semibold {{ 'text-success' if m.es_entrada else 'text-primary' }}">
+                                    {{ '+' if m.es_entrada else '-' }}{{ m.cantidad }}
+                                </td>
+                                <td><span class="small">{{ m.usuario.nombre_usuario }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    <p class="mb-0">Aún no hay movimientos registrados.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock por categoría -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-pie-chart me-2 text-success"></i>Stock por categoría</h5>
+                <span class="text-muted small">indicador</span>
+            </div>
+            <div class="card-body">
+                {% if por_categoria %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Categoría</th>
+                                <th class="text-end">Alimentos</th>
+                                <th class="text-end">Stock</th>
+                                <th class="text-end">Bajo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for f in por_categoria %}
+                            <tr>
+                                <td><span class="badge bg-soft">{{ f.categoria.nombre|capitalize }}</span></td>
+                                <td class="text-end">{{ f.cantidad }}</td>
+                                <td class="text-end">{{ "%.2f"|format(f.stock) }}</td>
+                                <td class="text-end">
+                                    {% if f.bajo %}
+                                    <span class="badge bg-danger">{{ f.bajo }}</span>
+                                    {% else %}
+                                    <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <p class="mb-0">No hay categorías registradas.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
