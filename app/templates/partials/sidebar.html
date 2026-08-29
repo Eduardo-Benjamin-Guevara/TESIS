@@ -24,6 +24,20 @@
             <i class="bi bi-calendar2-range"></i> Fechas de vencimiento
         </a>
 
+        <span class="nav-section">Movimientos</span>
+        <a href="{{ url_for('inventario.nueva_entrada') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.nueva_entrada' else '' }}">
+            <i class="bi bi-box-arrow-in-down"></i> Entradas
+        </a>
+        <a href="{{ url_for('inventario.nueva_salida') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.nueva_salida' else '' }}">
+            <i class="bi bi-box-arrow-up-right"></i> Salidas
+        </a>
+        <a href="{{ url_for('inventario.disponibilidad') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.disponibilidad' else '' }}">
+            <i class="bi bi-clipboard-check"></i> Disponibilidad
+        </a>
+        <a href="{{ url_for('inventario.historial') }}" class="nav-link {{ 'active' if request.endpoint == 'inventario.historial' else '' }}">
+            <i class="bi bi-clock-history"></i> Historial
+        </a>
+
         {% if current_user.es_admin %}
         <span class="nav-section">Administración</span>
         <a href="{{ url_for('usuarios.index') }}" class="nav-link {{ 'active' if request.blueprint == 'usuarios' else '' }}">

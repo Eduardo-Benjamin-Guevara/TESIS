@@ -41,6 +41,7 @@ class Alimento(db.Model):
         "Lote", back_populates="alimento", lazy="select",
         order_by="Lote.fecha_vencimiento",
     )
+    movimientos = db.relationship("Movimiento", back_populates="alimento", lazy="dynamic")
 
     # -- Validación de datos -------------------------------------------
     @staticmethod

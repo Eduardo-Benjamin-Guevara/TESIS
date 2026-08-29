@@ -27,6 +27,7 @@ class Lote(db.Model):
     fecha_creacion = db.Column(db.DateTime, nullable=False, default=utcnow)
 
     alimento = db.relationship("Alimento", back_populates="lotes")
+    movimientos = db.relationship("Movimiento", back_populates="lote", lazy="dynamic")
 
     @property
     def vencido(self) -> bool:

@@ -104,6 +104,7 @@ def create_app(config_name: str | None = None) -> Flask:
         alimentos_bp,
         auth_bp,
         categorias_bp,
+        inventario_bp,
         lotes_bp,
         main_bp,
         usuarios_bp,
@@ -113,6 +114,7 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(alimentos_bp)
     app.register_blueprint(categorias_bp)
+    app.register_blueprint(inventario_bp)
     app.register_blueprint(lotes_bp)
     app.register_blueprint(usuarios_bp)
 

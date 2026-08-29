@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Historial de movimientos{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Historial de movimientos</h1>
+        <p class="text-muted mb-0">Registro de todas las entradas y salidas del inventario.</p>
+    </div>
+    {% if current_user.rol in ['admin', 'encargado'] %}
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('inventario.nueva_entrada') }}" class="btn btn-success">
+            <i class="bi bi-box-arrow-in-down me-1"></i> Entrada
+        </a>
+        <a href="{{ url_for('inventario.nueva_salida') }}" class="btn btn-primary">
+            <i class="bi bi-box-arrow-up-right me-1"></i> Salida
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small mb-1" for="q">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="q" name="q" class="form-control" value="{{ filtro }}" placeholder="Código o nombre del alimento">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="tipo">Tipo</label>
+                <select id="tipo" name="tipo" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="entrada" {{ 'selected' if tipo == 'entrada' else '' }}>Entradas</option>
+                    <option value="salida" {{ 'selected' if tipo == 'salida' else '' }}>Salidas</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+                <a href="{{ url_for('inventario.historial') }}" class="btn btn-light border"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if movimientos %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Alimento</th>
+                        <th class="text-end">Cantidad</th>
+                        <th class="text-end">Stock resultante</th>
+                        <th>Lote</th>
+                        <th>Motivo</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movimientos %}
+                    <tr>
+                        <td><span class="text-nowrap small">{{ m.fecha.strftime('%d/%m/%Y %H:%M') }}</span></td>
+                        <td>
+                            {% if m.es_entrada %}
+                            <span class="badge bg-success-subtle text-success border"><i class="bi bi-plus"></i> Entrada</span>
+                            {% else %}
+                            <span class="badge bg-primary-subtle text-primary border"><i class="bi bi-dash"></i> Salida</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ m.alimento.nombre }}</div>
+                            <small class="text-muted">{{ m.alimento.codigo }}</small>
+                        </td>
+                        <td class="text-end">
+                            <span class="{{ 'text-success' if m.es_entrada else 'text-primary' }} fw-semibold">
+                                {{ '+' if m.es_entrada else '-' }}{{ m.cantidad }} {{ m.alimento.unidad_medida }}
+                            </span>
+                        </td>
+                        <td class="text-end">{{ m.stock_resultante }}</td>
+                        <td>
+                            {% if m.lote %}
+                            <span class="small text-muted">{{ m.lote.codigo or ('Lote ' ~ m.lote.id) }}</span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="small">{{ m.motivo or '—' }}</span></td>
+                        <td><span class="small">{{ m.usuario.nombre_usuario }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-clock-history fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay movimientos registrados con los criterios indicados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
