@@ -2,17 +2,10 @@
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 from flask_wtf import FlaskForm
-from wtforms import (
-    BooleanField,
-    DecimalField,
-    SelectField,
-    StringField,
-    TextAreaField,
-)
-from wtforms.validators import DataRequired, NumberRange, Optional
+from wtforms import DecimalField, SelectField, StringField, TextAreaField
+from wtforms.validators import DataRequired, InputRequired, NumberRange, Optional
 
-from app.models.alimento import CategoriaAlimento
-from app.services import alimento_service
+from app.services import alimento_service, categoria_service, lote_service
 from app.services.alimento_service import ErrorNegocio
 from app.utils.decorators import rol_requerido
 
@@ -30,11 +23,7 @@ class AlimentoForm(FlaskForm):
         validators=[DataRequired()],
         render_kw={"placeholder": "Ej. Arroz extra", "maxlength": "150"},
     )
-    categoria = SelectField(
-        "Categoría",
-        choices=[("", "Seleccione...")] + [(c, c.capitalize()) for c in CategoriaAlimento.VALORES],
-        validators=[DataRequired()],
-    )
+    categoria = SelectField("Categoría", validators=[DataRequired()])
     unidad_medida = StringField(
         "Unidad de medida",
         validators=[DataRequired()],
@@ -42,13 +31,13 @@ class AlimentoForm(FlaskForm):
     )
     stock_actual = DecimalField(
         "Stock actual",
-        validators=[DataRequired(), NumberRange(min=0)],
+        validators=[InputRequired(), NumberRange(min=0)],
         render_kw={"placeholder": "0.00", "step": "0.01"},
         places=2,
     )
     stock_minimo = DecimalField(
         "Stock mínimo",
-        validators=[DataRequired(), NumberRange(min=0)],
+        validators=[InputRequired(), NumberRange(min=0)],
         render_kw={"placeholder": "0.00", "step": "0.01"},
         places=2,
     )
@@ -59,22 +48,27 @@ class AlimentoForm(FlaskForm):
     )
 
 
+def _opciones_categorias():
+    """Lista de (id, nombre_capitalizado) de las categorías activas."""
+    return [(str(c.id), c.nombre.capitalize()) for c in categoria_service.listar()]
+
+
 @bp.route("/")
 @login_required
 def index():
     """Listado y búsqueda de alimentos."""
     filtro = request.args.get("q", "").strip()
-    categoria = request.args.get("categoria", "").strip()
+    categoria_id = request.args.get("categoria", "").strip()
     incluir_inactivos = request.args.get("inactivos", "").lower() in ("1", "true", "si")
 
     alimentos = alimento_service.listar(
-        filtro=filtro, categoria=categoria, incluir_inactivos=incluir_inactivos
+        filtro=filtro, categoria_id=categoria_id, incluir_inactivos=incluir_inactivos
     )
     return render_template(
         "alimentos/index.html",
         alimentos=alimentos,
         filtro=filtro,
-        categoria=categoria,
+        categoria_id=categoria_id,
         incluir_inactivos=incluir_inactivos,
     )
 
@@ -84,12 +78,13 @@ def index():
 @rol_requerido("admin", "encargado")
 def nuevo():
     form = AlimentoForm()
+    form.categoria.choices = [("", "Seleccione...")] + _opciones_categorias()
     if form.validate_on_submit():
         try:
             alimento_service.crear_alimento(
                 codigo=form.codigo.data,
                 nombre=form.nombre.data,
-                categoria=form.categoria.data,
+                categoria_id=form.categoria.data,
                 unidad_medida=form.unidad_medida.data,
                 descripcion=form.descripcion.data,
                 stock_actual=form.stock_actual.data,
@@ -111,13 +106,18 @@ def editar(alimento_id):
         abort(404)
 
     form = AlimentoForm(obj=alimento)
+    form.categoria.choices = [("", "Seleccione...")] + _opciones_categorias()
+    # Asegurar el valor preseleccionado
+    if form.categoria.data is None and alimento.categoria_id:
+        form.categoria.data = str(alimento.categoria_id)
+
     if form.validate_on_submit():
         try:
             alimento_service.actualizar_alimento(
                 alimento,
                 codigo=form.codigo.data,
                 nombre=form.nombre.data,
-                categoria=form.categoria.data,
+                categoria_id=form.categoria.data,
                 unidad_medida=form.unidad_medida.data,
                 descripcion=form.descripcion.data,
                 stock_actual=form.stock_actual.data,
@@ -139,7 +139,8 @@ def detalle(alimento_id):
     alimento = alimento_service.obtener(alimento_id)
     if alimento is None:
         abort(404)
-    return render_template("alimentos/detalle.html", alimento=alimento)
+    lotes = lote_service.listar_por_alimento(alimento_id)
+    return render_template("alimentos/detalle.html", alimento=alimento, lotes=lotes)
 
 
 @bp.post("/<int:alimento_id>/estado")

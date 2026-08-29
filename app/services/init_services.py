@@ -49,3 +49,21 @@ def crear_admin_inicial() -> None:
     db.session.add(admin)
     db.session.commit()
     logger.info("Usuario administrador inicial creado: %s", usuario)
+
+
+def sembrar_categorias() -> None:
+    """Crea las categorías por defecto si aún no existen.
+
+    Es idempotente: no duplica categorías ya presentes.
+    """
+    from app.models.categoria import Categoria, CATEGORIAS_DEFECTO
+
+    existentes = {c.nombre for c in Categoria.query.all()}
+    creadas = 0
+    for nombre in CATEGORIAS_DEFECTO:
+        if nombre not in existentes:
+            db.session.add(Categoria(nombre=nombre))
+            creadas += 1
+    if creadas:
+        db.session.commit()
+        logger.info("Categorías por defecto sembradas: %d", creadas)

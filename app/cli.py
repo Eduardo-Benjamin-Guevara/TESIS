@@ -25,9 +25,10 @@ def registrar_cli(app: Flask) -> None:
         click.echo("Aplicando migraciones...")
         upgrade()
         click.echo("Creando usuario administrador inicial...")
-        from app.services.init_services import crear_admin_inicial
+        from app.services.init_services import crear_admin_inicial, sembrar_categorias
 
         crear_admin_inicial()
+        sembrar_categorias()
         db.session.remove()
         click.echo("Base de datos inicializada correctamente.")
 

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Categorías{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Categorías de alimentos</h1>
+        <p class="text-muted mb-0">Clasificación de los alimentos del inventario.</p>
+    </div>
+    {% if current_user.rol in ['admin', 'encargado'] %}
+    <a href="{{ url_for('categorias.nuevo') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nueva categoría
+    </a>
+    {% endif %}
+</div>
+
+<div class="mb-4">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="inactivas" onchange="window.location.href=this.checked ? '{{ url_for('categorias.index') }}?inactivas=1' : '{{ url_for('categorias.index') }}'" {{ 'checked' if incluir_inactivas else '' }}>
+        <label class="form-check-label small" for="inactivas">Ver inactivas</label>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if categorias %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th class="text-center">Alimentos</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in categorias %}
+                    <tr class="{{ 'table-secondary' if not c.activo else '' }}">
+                        <td><span class="badge bg-soft">{{ c.nombre|capitalize }}</span></td>
+                        <td>{{ c.descripcion or '—' }}</td>
+                        <td class="text-center">{{ c.total_alimentos }}</td>
+                        <td>
+                            {% if c.activo %}
+                            <span class="badge bg-success-subtle text-success border">Activa</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border">Inactiva</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                {% if current_user.rol in ['admin', 'encargado'] %}
+                                <a href="{{ url_for('categorias.editar', categoria_id=c.id) }}" class="btn btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
+                                {% endif %}
+                                {% if current_user.es_admin %}
+                                <form method="POST" action="{{ url_for('categorias.cambiar_estado', categoria_id=c.id) }}" class="d-inline" onsubmit="return confirm('¿Seguro de cambiar el estado de esta categoría?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    {% if c.activo %}
+                                    <button type="submit" class="btn btn-outline-danger" title="Desactivar"><i class="bi bi-archive"></i></button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-outline-success" title="Activar"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    {% endif %}
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-tags fs-1 d-block mb-2"></i>
+            <p class="mb-0">No hay categorías registradas.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

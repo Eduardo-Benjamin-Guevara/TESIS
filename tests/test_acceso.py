@@ -29,12 +29,15 @@ def test_crear_alimento_requiere_sesion(client):
 def test_editar_alimento_requiere_admin_o_encargado(client, admin, encargado, app):
     """Un usuario con rol consulta no puede editar alimentos."""
     from app.extensions import db
-    from app.models import RolUsuario, Usuario
+    from app.models import Categoria, RolUsuario, Usuario
     from app.models.alimento import Alimento
 
     with app.app_context():
+        cat = Categoria.query.filter_by(nombre="bebidas").first() or Categoria(nombre="bebidas")
+        db.session.add(cat)
+        db.session.commit()
         db.session.add(
-            Alimento(codigo="GASEOS1", nombre="Gaseosa", categoria="bebidas",
+            Alimento(codigo="GASEOS1", nombre="Gaseosa", categoria_id=cat.id,
                      unidad_medida="unidad", stock_actual=20, stock_minimo=5)
         )
         db.session.commit()
@@ -60,11 +63,15 @@ def test_editar_alimento_requiere_admin_o_encargado(client, admin, encargado, ap
 def test_alternar_estado_solo_admin(client, encargado, app):
     """Solo el administrador puede activar/desactivar alimentos."""
     from app.extensions import db
+    from app.models import Categoria
     from app.models.alimento import Alimento
 
     with app.app_context():
+        cat = Categoria.query.filter_by(nombre="granos").first() or Categoria(nombre="granos")
+        db.session.add(cat)
+        db.session.commit()
         db.session.add(
-            Alimento(codigo="PAN001", nombre="Pan", categoria="granos",
+            Alimento(codigo="PAN001", nombre="Pan", categoria_id=cat.id,
                      unidad_medida="unidad", stock_actual=30, stock_minimo=10)
         )
         db.session.commit()

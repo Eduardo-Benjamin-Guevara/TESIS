@@ -100,11 +100,20 @@ def create_app(config_name: str | None = None) -> Flask:
         return db.session.get(Usuario, int(user_id))
 
     # Registrar blueprints
-    from app.routes import auth_bp, alimentos_bp, main_bp, usuarios_bp
+    from app.routes import (
+        alimentos_bp,
+        auth_bp,
+        categorias_bp,
+        lotes_bp,
+        main_bp,
+        usuarios_bp,
+    )
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(alimentos_bp)
+    app.register_blueprint(categorias_bp)
+    app.register_blueprint(lotes_bp)
     app.register_blueprint(usuarios_bp)
 
     # Registrar errores
@@ -115,11 +124,11 @@ def create_app(config_name: str | None = None) -> Flask:
 
     registrar_cli(app)
 
-    # Contexto global para plantillas
-    from app.models.alimento import CategoriaAlimento
-
+    # Contexto global para plantillas: lista de categorías disponibles
     @app.context_processor
     def inyectar_contexto():
-        return {"categorias_alimento": CategoriaAlimento.VALORES}
+        from app.services import categoria_service
+
+        return {"categorias": categoria_service.listar()}
 
     return app

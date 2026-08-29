@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Fechas de vencimiento{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1">Lotes y fechas de vencimiento</h1>
+        <p class="text-muted mb-0">Registro de los lotes de alimentos y sus fechas de vencimiento.</p>
+    </div>
+    {% if current_user.rol in ['admin', 'encargado'] %}
+    <a href="{{ url_for('lotes.nuevo') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Registrar lote
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label small mb-1" for="q">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="q" name="q" class="form-control" value="{{ filtro }}" placeholder="Nombre o código del alimento, o código de lote">
+                </div>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="inactivos" name="inactivos" value="1" {{ 'checked' if incluir_inactivos else '' }}>
+                    <label class="form-check-label small" for="inactivos">Ver inactivos</label>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+                <a href="{{ url_for('lotes.index') }}" class="btn btn-light border"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        {% if lotes %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código de lote</th>
+                        <th>Alimento</th>
+                        <th>Fecha vencimiento</th>
+                        <th class="text-end">Cantidad</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in lotes %}
+                    <tr class="{{ 'table-secondary' if not l.activo else '' }}">
+                        <td>{{ l.codigo or ('Lote #' ~ l.id) }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ l.alimento.nombre }}</div>
+                            <small class="text-muted">{{ l.alimento.codigo }}</small>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'bg-danger' if l.vencido else 'bg-light text-dark border' }}">
+                                {{ l.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                            </span>
+                        </td>
+                        <td class="text-end">{{ l.cantidad }} {{ l.alimento.unidad_medida }}</td>
+                        <td>
+                            {% if l.vencido %}
+                            <span class="badge bg-danger">Vencido</span>
+                            {% elif l.activo %}
+                            <span class="badge bg-success-subtle text-success border">Activo</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('alimentos.detalle', alimento_id=l.alimento_id) }}" class="btn btn-outline-primary" title="Ver alimento"><i class="bi bi-eye"></i></a>
+                                {% if current_user.rol in ['admin', 'encargado'] %}
+                                <a href="{{ url_for('lotes.editar', lote_id=l.id) }}" class="btn btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-calendar2-x fs-1 d-block mb-2"></i>
+            <p class="mb-0">No se encontraron lotes.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

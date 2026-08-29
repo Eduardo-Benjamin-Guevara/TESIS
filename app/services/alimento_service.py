@@ -1,32 +1,15 @@
 """Servicio de lógica de negocio para la gestión de alimentos.
 
-Encapsula las reglas del dominio (código único, validaciones, filtros,
+Encapsula las reglas del dominio (código único, categoría válida, filtros,
 estado activo/inactivo) para que las rutas sean delgadas y reutilizables.
 """
-from flask import current_app
-
 from app.extensions import db
-from app.models.alimento import Alimento, CategoriaAlimento
+from app.models.categoria import Categoria
+from app.models.alimento import Alimento
 
 
 class ErrorNegocio(Exception):
     """Error de regla de negocio que se traduce en un mensaje al usuario."""
-
-
-def validar_codigo_unico(codigo: str, excluir_id: int | None = None) -> str | None:
-    """Valida el código normalizado.
-
-    Devuelve un mensaje de error o None si es válido.
-    """
-    codigo_normalizado = Alimento.normalizar_codigo(codigo)
-    if not codigo_normalizado:
-        return "El código del alimento es obligatorio."
-    if not (3 <= len(codigo_normalizado) <= 20):
-        return "El código debe tener entre 3 y 20 caracteres."
-    # Debe ser alfanumérico
-    if not codigo_normalizado.isalnum():
-        return "El código solo puede contener letras y números."
-    return None
 
 
 def _repo_codigo_duplicado(codigo: str, excluir_id: int | None = None) -> bool:
@@ -37,14 +20,23 @@ def _repo_codigo_duplicado(codigo: str, excluir_id: int | None = None) -> bool:
 
 
 def codigo_en_uso(codigo: str, excluir_id: int | None = None) -> bool:
-    """Indica si el código ya está registrado en otro alimento activo."""
+    """Indica si el código ya está registrado en otro alimento."""
     return _repo_codigo_duplicado(codigo, excluir_id)
+
+
+def _validar_categoria(categoria_id) -> Categoria:
+    if not categoria_id:
+        raise ErrorNegocio("Debes seleccionar una categoría.")
+    cat = db.session.get(Categoria, int(categoria_id))
+    if cat is None:
+        raise ErrorNegocio("La categoría seleccionada no existe.")
+    return cat
 
 
 def crear_alimento(
     codigo: str,
     nombre: str,
-    categoria: str,
+    categoria_id: int,
     unidad_medida: str,
     descripcion: str | None,
     stock_actual,
@@ -54,13 +46,12 @@ def crear_alimento(
     codigo_norm = Alimento.normalizar_codigo(codigo)
     if _repo_codigo_duplicado(codigo_norm):
         raise ErrorNegocio("Ya existe un alimento con ese código.")
-    if categoria not in CategoriaAlimento.VALORES:
-        raise ErrorNegocio("La categoría seleccionada no es válida.")
+    _validar_categoria(categoria_id)
 
     alimento = Alimento(
         codigo=codigo_norm,
         nombre=nombre.strip(),
-        categoria=categoria,
+        categoria_id=int(categoria_id),
         unidad_medida=unidad_medida.strip(),
         descripcion=(descripcion or "").strip() or None,
         stock_actual=float(stock_actual or 0),
@@ -75,7 +66,7 @@ def actualizar_alimento(
     alimento: Alimento,
     codigo: str,
     nombre: str,
-    categoria: str,
+    categoria_id: int,
     unidad_medida: str,
     descripcion: str | None,
     stock_actual,
@@ -85,12 +76,11 @@ def actualizar_alimento(
     codigo_norm = Alimento.normalizar_codigo(codigo)
     if _repo_codigo_duplicado(codigo_norm, excluir_id=alimento.id):
         raise ErrorNegocio("Ya existe otro alimento con ese código.")
-    if categoria not in CategoriaAlimento.VALORES:
-        raise ErrorNegocio("La categoría seleccionada no es válida.")
+    _validar_categoria(categoria_id)
 
     alimento.codigo = codigo_norm
     alimento.nombre = nombre.strip()
-    alimento.categoria = categoria
+    alimento.categoria_id = int(categoria_id)
     alimento.unidad_medida = unidad_medida.strip()
     alimento.descripcion = (descripcion or "").strip() or None
     alimento.stock_actual = float(stock_actual or 0)
@@ -106,22 +96,22 @@ def alternar_estado(alimento: Alimento) -> Alimento:
     return alimento
 
 
-def obtener(id: int) -> Alimento | None:
-    return db.session.get(Alimento, id)
+def obtener(alimento_id: int) -> Alimento | None:
+    return db.session.get(Alimento, alimento_id)
 
 
-def listar(filtro: str = "", categoria: str = "", incluir_inactivos: bool = False) -> list[Alimento]:
+def listar(filtro: str = "", categoria_id: str = "", incluir_inactivos: bool = False) -> list[Alimento]:
     """Consulta alimentos con búsqueda y filtrado opcional.
 
     - `filtro`: texto que coincide con código o nombre.
-    - `categoria`: categoría exacta.
+    - `categoria_id`: id exacto de la categoría.
     - `incluir_inactivos`: si es True, muestra también los inactivos.
     """
     query = Alimento.query
     if not incluir_inactivos:
         query = query.filter(Alimento.activo.is_(True))
-    if categoria:
-        query = query.filter(Alimento.categoria == categoria)
+    if categoria_id:
+        query = query.filter(Alimento.categoria_id == int(categoria_id))
     if filtro:
         patron = f"%{filtro.strip()}%"
         query = query.filter(
