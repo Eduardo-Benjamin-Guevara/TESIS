@@ -40,3 +40,32 @@ def registrar_cli(app: Flask) -> None:
 
         crear_admin_inicial()
         click.echo("Verificación de administrador finalizada.")
+
+    @app.cli.command("seed-demo")
+    @click.option("--forzar", is_flag=True, help="Elimina los datos demo previos y los vuelve a generar.")
+    @with_appcontext
+    def seed_demo_command(forzar: bool):
+        """Siembra datos de simulación realistas (Sprint 7).
+
+        Alimentos por categoría, lotes con distintas fechas de vencimiento
+        (incluidos vencidos/próximos a vencer) y movimientos históricos que
+        alimentan los reportes, las alertas y las notificaciones.
+        """
+        from app.services.simulacion_service import PASSWORD_DEMO, generar_datos_demo
+
+        if not forzar:
+            from app.services.simulacion_service import existen_datos_demo
+
+            if existen_datos_demo():
+                click.echo("Ya existen datos. Usa --forzar para regenerarlos.")
+                return
+
+        resumen = generar_datos_demo(forzar=forzar)
+        if not resumen["creado"] and not forzar:
+            click.echo("Ya existen datos de simulación. Nada que hacer.")
+            return
+        click.echo(
+            f"Datos de simulación sembrados: {resumen['alimentos']} alimentos, "
+            f"{resumen['lotes']} lotes, {resumen['movimientos']} movimientos."
+        )
+        click.echo(f"Usuario demo: {resumen['usuario_demo']} / {PASSWORD_DEMO}")

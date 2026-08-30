@@ -324,6 +324,7 @@ documentado en `docs/sprintN.md`.
 | 4 | `sprint/4` | Monitoreo y reportes (dashboard, entradas/salidas, stock en tiempo real, reportes, indicadores) | ✅ Completado |
 | 5 | `sprint/5` | Funciones innovadoras (gráficos, QR, exportar reportes, recomendaciones, trazabilidad) | ✅ Completado |
 | 6 | `sprint/6` | Usabilidad y profesionalismo (notificaciones funcionales, tema claro/oscuro, responsive y extras) | ✅ Completado |
+| 7 | `sprint/7` | Datos de simulación (alimentos, lotes, movimientos demo; carga por CLI y panel) | ✅ Completado |
 
 Cada sprint incluye: **pruebas funcionales, verificación de requerimientos,
 identificación y corrección de errores, y evaluación del incremento**.
