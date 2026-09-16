@@ -15,19 +15,32 @@ class BaseConfig:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-change-me")
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    # Cookie de sesión solo por HTTPS en producción
-    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "false").lower() == "true"
+    # Cookie de sesión solo por HTTPS (se activa automáticamente en producción)
+    SESSION_COOKIE_SECURE = (
+        True
+        if os.environ.get("FLASK_CONFIG", "development") == "production"
+        else os.environ.get("SESSION_COOKIE_SECURE", "false").lower() == "true"
+    )
     REMEMBER_COOKIE_DURATION = timedelta(days=30)
 
     # Base de datos
-    # Por defecto usa SQLite en `instance/`. En producción se puede
-    # sobreescribir con SQLALCHEMY_DATABASE_URI (p. ej. PostgreSQL).
+    # Por defecto usa SQLite en `instance/` (solo desarrollo). En producción
+    # (Render, Vercel, Railway, etc.) se debe apuntar a PostgreSQL mediante
+    # DATABASE_URL o SQLALCHEMY_DATABASE_URI.
     _BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     _INSTANCE_DIR = os.path.join(_BASE_DIR, "instance")
-    os.makedirs(_INSTANCE_DIR, exist_ok=True)
+    try:
+        # En entornos serverless (Vercel) el sistema de archivos es de solo
+        # lectura: no intentar crear directorios si falla.
+        os.makedirs(_INSTANCE_DIR, exist_ok=True)
+    except OSError:
+        pass
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "SQLALCHEMY_DATABASE_URI",
-        "sqlite:///" + os.path.join(_INSTANCE_DIR, "sistema_alimentos.db"),
+        "DATABASE_URL",
+        os.environ.get(
+            "SQLALCHEMY_DATABASE_URI",
+            "sqlite:///" + os.path.join(_INSTANCE_DIR, "sistema_alimentos.db"),
+        ),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {

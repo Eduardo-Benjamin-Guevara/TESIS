@@ -50,3 +50,67 @@
     line-height: 1;
 }
 .error-icon { font-size: 2.5rem; color: var(--primary, #2f7d4f); }
+
+/* ==========================================================================
+   Tema oscuro (login y errores)
+   ========================================================================== */
+[data-tema="oscuro"] .auth-body {
+    background: linear-gradient(135deg, #101a14 0%, #16241c 60%, #1f3a2b 100%);
+}
+[data-tema="oscuro"] .auth-card .card-body,
+[data-tema="oscuro"] .error-box {
+    background: #1c2a22;
+    color: #e4ece6;
+}
+[data-tema="oscuro"] .auth-card .form-control,
+[data-tema="oscuro"] .auth-card .input-group-text {
+    background-color: #16231c;
+    border-color: #2c3a31;
+    color: #e4ece6;
+}
+[data-tema="oscuro"] .auth-card .form-control:focus {
+    background-color: #1a2921;
+    border-color: var(--primary, #4caf78);
+    color: #e4ece6;
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 120, 0.15);
+}
+[data-tema="oscuro"] .auth-card .form-control::placeholder { color: #9db2a5; }
+[data-tema="oscuro"] .auth-logo {
+    background: #1f3a2b;
+    color: #4caf78;
+}
+[data-tema="oscuro"] .error-code { color: #3d4d43; }
+[data-tema="oscuro"] .auth-body .text-muted,
+[data-tema="oscuro"] .error-box .text-muted { color: #9db2a5; }
+[data-tema="oscuro"] .auth-body .btn-primary,
+[data-tema="oscuro"] .error-box .btn-primary {
+    background: var(--primary, #4caf78);
+    border-color: var(--primary, #4caf78);
+    color: #fff;
+}
+[data-tema="oscuro"] .auth-body .btn-outline-secondary,
+[data-tema="oscuro"] .error-box .btn-outline-secondary {
+    color: #9db2a5;
+    border-color: #2c3a31;
+}
+[data-tema="oscuro"] .auth-body .alert {
+    border-color: #2c3a31;
+    color: #e4ece6;
+}
+[data-tema="oscuro"] .auth-body .alert-danger,
+[data-tema="oscuro"] .auth-body .alert-error {
+    background-color: #2e1d1d;
+    color: #f0c0c0;
+}
+[data-tema="oscuro"] .auth-body .alert-warning {
+    background-color: #2e2a1a;
+    color: #f0e6c8;
+}
+[data-tema="oscuro"] .auth-body .alert-success {
+    background-color: #1c2b22;
+    color: #b8dcc4;
+}
+[data-tema="oscuro"] .auth-body .alert-info {
+    background-color: #1b2830;
+    color: #bcdce8;
+}

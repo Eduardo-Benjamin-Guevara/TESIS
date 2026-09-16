@@ -27,6 +27,7 @@
         if (icono) {
             icono.className = tema === "oscuro" ? "bi bi-sun-fill" : "bi bi-moon-stars";
         }
+        document.dispatchEvent(new CustomEvent("tema:cambio", { detail: tema }));
     }
 
     document.addEventListener("DOMContentLoaded", function () {

@@ -11,6 +11,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
 <body class="auth-body">
+    <script>
+        // Aplicar el tema antes de que se pinte la página (evita parpadeo)
+        (function () {
+            try {
+                var t = localStorage.getItem("tema");
+                if (!t) {
+                    t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
+                }
+                if (t === "oscuro") { document.documentElement.setAttribute("data-tema", "oscuro"); }
+            } catch (e) {}
+        })();
+    </script>
     <div class="auth-wrapper">
         <div class="text-center error-box">
             <div class="error-code">{{ codigo }}</div>

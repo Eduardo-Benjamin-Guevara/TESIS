@@ -224,7 +224,6 @@
                     <p class="mb-0">No hay categorías registradas.</p>
                 </div>
                 {% endif %}
-</div>
             </div>
         </div>
     </div>
@@ -241,63 +240,95 @@
         var coloresCat = ["#0d6efd", "#6f42c1", "#198754", "#fd7e14", "#0dcaf0", "#d63384", "#ffc107", "#20c997", "#6610f2", "#dc3545"];
         var datosCategoria = {{ graficos.stock_por_categoria.datos|tojson }};
         var etiquetasCategoria = {{ graficos.stock_por_categoria.labels|tojson }};
-
-        if (document.getElementById("chartCategorias") && etiquetasCategoria.length) {
-            new Chart(document.getElementById("chartCategorias"), {
-                type: "bar",
-                data: {
-                    labels: etiquetasCategoria,
-                    datasets: [{
-                        label: "Stock",
-                        data: datosCategoria,
-                        backgroundColor: etiquetasCategoria.map(function (_, i) { return coloresCat[i % coloresCat.length]; }),
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
-
         var estado = {{ graficos.estado_inventario.datos|tojson }};
         var etiquetasEstado = {{ graficos.estado_inventario.labels|tojson }};
-        if (document.getElementById("chartEstado") && etiquetasEstado.length) {
-            new Chart(document.getElementById("chartEstado"), {
-                type: "doughnut",
-                data: {
-                    labels: etiquetasEstado,
-                    datasets: [{
-                        data: estado,
-                        backgroundColor: ["#198754", "#ffc107", "#dc3545"],
-                        borderWidth: 1
-                    }]
-                },
-                options: { plugins: { legend: { position: "bottom" } } }
-            });
-        }
-
         var movimientos = {{ graficos.movimientos.datos|tojson }};
         var etiquetasMov = {{ graficos.movimientos.labels|tojson }};
-        if (document.getElementById("chartMovimientos") && etiquetasMov.length) {
-            new Chart(document.getElementById("chartMovimientos"), {
-                type: "bar",
-                data: {
-                    labels: etiquetasMov,
-                    datasets: [{
-                        label: "Movimientos",
-                        data: movimientos,
-                        backgroundColor: ["#198754", "#0d6efd"],
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
+        var graficosInstanciados = [];
+
+        function esOscuro() {
+            return document.documentElement.getAttribute("data-tema") === "oscuro";
         }
+        function paletaEscalas() {
+            var oscuro = esOscuro();
+            return {
+                texto: oscuro ? "#9db2a5" : "#6b7a70",
+                grid: oscuro ? "rgba(255,255,255,0.08)" : "rgba(31,61,43,0.12)"
+            };
+        }
+        function destruirGraficos() {
+            graficosInstanciados.forEach(function (g) { g.destroy(); });
+            graficosInstanciados = [];
+        }
+        function crearGraficos() {
+            destruirGraficos();
+            var p = paletaEscalas();
+
+            if (document.getElementById("chartCategorias") && etiquetasCategoria.length) {
+                graficosInstanciados.push(new Chart(document.getElementById("chartCategorias"), {
+                    type: "bar",
+                    data: {
+                        labels: etiquetasCategoria,
+                        datasets: [{
+                            label: "Stock",
+                            data: datosCategoria,
+                            backgroundColor: etiquetasCategoria.map(function (_, i) { return coloresCat[i % coloresCat.length]; }),
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false }, tooltip: { color: "#fff" } },
+                        scales: {
+                            x: { grid: { color: p.grid }, ticks: { color: p.texto } },
+                            y: { beginAtZero: true, grid: { color: p.grid }, ticks: { color: p.texto } }
+                        }
+                    }
+                }));
+            }
+
+            if (document.getElementById("chartEstado") && etiquetasEstado.length) {
+                graficosInstanciados.push(new Chart(document.getElementById("chartEstado"), {
+                    type: "doughnut",
+                    data: {
+                        labels: etiquetasEstado,
+                        datasets: [{
+                            data: estado,
+                            backgroundColor: ["#198754", "#ffc107", "#dc3545"],
+                            borderColor: esOscuro() ? "#1c2a22" : "#ffffff",
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { position: "bottom", labels: { color: p.texto } } }
+                    }
+                }));
+            }
+
+            if (document.getElementById("chartMovimientos") && etiquetasMov.length) {
+                graficosInstanciados.push(new Chart(document.getElementById("chartMovimientos"), {
+                    type: "bar",
+                    data: {
+                        labels: etiquetasMov,
+                        datasets: [{
+                            label: "Movimientos",
+                            data: movimientos,
+                            backgroundColor: ["#198754", "#0d6efd"],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: p.grid }, ticks: { color: p.texto } },
+                            y: { beginAtZero: true, grid: { color: p.grid }, ticks: { color: p.texto, precision: 0 } }
+                        }
+                    }
+                }));
+            }
+        }
+
+        crearGraficos();
+        document.addEventListener("tema:cambio", crearGraficos);
     });
 </script>
 {% endblock %}

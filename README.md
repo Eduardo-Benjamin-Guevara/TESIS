@@ -247,6 +247,48 @@ Requisitos: Python 3.12+.
 
 ---
 
+## Despliegue en Vercel (producción, 24/7)
+
+La aplicación está lista para desplegarse en **Vercel** de forma gratuita y
+**sin configuración manual**: Vercel detecta automáticamente la instancia WSGI
+`app` en `api/index.py` y la convierte en una Vercel Function (Fluid compute).
+Cada `git push` a `main` genera un nuevo despliegue de producción.
+
+### Base de datos (PostgreSQL gratuito con Neon)
+
+Vercel ejecuta funciones serverless con un sistema de archivos efímero, por lo
+que **SQLite no es persistente**. Para producción se usa **PostgreSQL**:
+`config.py` soporta la variable `DATABASE_URL` y las tablas/datos iniciales se
+crean automáticamente al primer arranque (idempotente). En el código se añadió
+`psycopg2-binary` para conectar con PostgreSQL.
+
+Pasos:
+
+1. Crear un proyecto en <https://neon.tech> (plan gratuito) y copiar su cadena
+   de conexión (formato `postgresql://usuario:password@host/db?sslmode=require`).
+2. En Vercel (<https://vercel.com>), importar este repositorio de GitHub y
+   añadir las variables de entorno en **Settings → Environment Variables**:
+   - `FLASK_CONFIG=production`
+   - `SECRET_KEY=<clave aleatoria>` (genérala con
+     `python -c "import secrets; print(secrets.token_hex(32))"`)
+   - `DATABASE_URL=<cadena de Neon>`
+   - `ADMIN_USUARIO=admin`, `ADMIN_PASSWORD=<clave fuerte>`
+   - `CREATE_ADMIN_ON_START=true` (crea el admin al primer arranque)
+   - `ANALYTICS_TAG=<id de Google Analytics>` (opcional)
+3. Vercel construye el proyecto en cada `push` (Python runtime). No se usa
+   build command: la detección es automática (`vercel.json` solo define
+   rewrites a `api/index` y caché de estáticos de 7 días).
+4. El primer arranque crea tablas, el administrador y datos de demostración.
+   La primera petición tras un *cold start* puede tardar unos segundos.
+
+> La cookie de sesión se marca como segura (HTTPS) automáticamente en
+> producción. Nunca fijes `SQLALCHEMY_DATABASE_URI` a SQLite en Vercel.
+
+Archivos involucrados: `api/index.py`, `vercel.json`, `.vercelignore`,
+`requirements.txt` (con `psycopg2-binary`).
+
+---
+
 ## Ejecución
 
 Con el entorno activo y desde la raíz del proyecto:
@@ -337,6 +379,7 @@ documentado en `docs/sprintN.md`.
 | 6 | `sprint/6` | Usabilidad y profesionalismo (notificaciones funcionales, tema claro/oscuro, responsive y extras) | ✅ Completado |
 | 7 | `sprint/7` | Datos de simulación (alimentos, lotes, movimientos demo; carga por CLI y panel) | ✅ Completado |
 | 8 | `sprint/8` | Pulido profesional (SEO, seguridad, copias de seguridad, errores 403/404/500, rendimiento, UX y accesibilidad) | ✅ Completado |
+| 9 | `sprint/9` | Deploy en Vercel 24/7 con PostgreSQL (Neon), paneles con gráficos adaptables al tema y ajuste global de colores claro/oscuro | 🔄 En curso |
 
 Cada sprint incluye: **pruebas funcionales, verificación de requerimientos,
 identificación y corrección de errores, y evaluación del incremento**.

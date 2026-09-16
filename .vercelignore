@@ -1,0 +1,17 @@
+# Architecturas y runtime
+venv/
+__pycache__/
+*.pyc
+
+# Test and tooling
+.pytest_cache/
+coverage.xml
+
+# Datos locales
+instance/
+backups/
+reporte_tests.html
+
+# Entorno
+.env
+*.env.local

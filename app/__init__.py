@@ -130,8 +130,13 @@ def create_app(config_name: str | None = None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_by_name.get(config_name, config_by_name["development"]))
 
-    # Asegurar que el directorio de instancia exista (contiene la BD en desarrollo)
-    os.makedirs(app.instance_path, exist_ok=True)
+    # Asegurar que el directorio de instancia exista (contiene la BD en desarrollo).
+    # En entornos serverless (Vercel) el filesystem de código es de solo
+    # lectura: si falla, simplemente continuamos (la BD se gestiona por DATABASE_URL).
+    try:
+        os.makedirs(app.instance_path, exist_ok=True)
+    except OSError:
+        pass
 
     # Inicializar extensiones
     db.init_app(app)
