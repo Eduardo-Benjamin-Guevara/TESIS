@@ -52,9 +52,9 @@ letras y tonalidades).
 | `requirements.txt` | Añade `psycopg2-binary` para PostgreSQL |
 | `app/config.py` | Soporta `DATABASE_URL`, `makedirs` tolerante a solo lectura |
 | `app/__init__.py` | `makedirs` protegido (serverless) |
-| `app/static/css/app.css` | Tema oscuro completo (tablas, forms, badges, alerts, modales) |
-| `app/static/css/auth.css` | Modo oscuro para login/errores |
-| `app/static/js/app.js` | Evento `tema:cambio` |
+| `app/static/css/app.css` → `public/static/css/app.css` | Tema oscuro completo (tablas, forms, badges, alerts, modales) |
+| `app/static/css/auth.css` → `public/static/css/auth.css` | Modo oscuro para login/errores |
+| `app/static/js/app.js` → `public/static/js/app.js` | Evento `tema:cambio` |
 | `app/templates/auth/login.html` | Script inline de tema + loader |
 | `app/templates/errors/base_error.html` | Script inline de tema |
 | `app/templates/monitoreo/dashboard.html` | Fix `</div>` extra + gráficos theme-aware |

@@ -127,7 +127,14 @@ def create_app(config_name: str | None = None) -> Flask:
     if config_name is None:
         config_name = os.environ.get("FLASK_CONFIG", "development")
 
-    app = Flask(__name__, instance_relative_config=True)
+    # En Vercel los estáticos se sirven desde public/ (CDN). En local Flask los
+    # sirve desde la misma carpeta para mantener la misma URL /static/...
+    _RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    app = Flask(
+        __name__,
+        instance_relative_config=True,
+        static_folder=os.path.join(_RAIZ, "public", "static"),
+    )
     app.config.from_object(config_by_name.get(config_name, config_by_name["development"]))
 
     # Asegurar que el directorio de instancia exista (contiene la BD en desarrollo).

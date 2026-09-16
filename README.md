@@ -107,10 +107,7 @@ project/
 │   │   ├── alimento_service.py
 │   │   └── init_services.py
 │   ├── templates/         # Vistas Jinja2
-│   ├── static/
-│   │   ├── css/
-│   │   ├── js/
-│   │   └── img/
+│   ├── static/            # (movido a public/static para Vercel)
 │   └── utils/
 │       ├── decorators.py  # Protección de rutas por rol
 │       └── security.py
