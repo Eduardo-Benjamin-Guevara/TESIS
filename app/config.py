@@ -20,14 +20,14 @@ class BaseConfig:
     REMEMBER_COOKIE_DURATION = timedelta(days=30)
 
     # Base de datos
-    # Leemos la URI desde el entorno. Por defecto SQLite de desarrollo.
-    # En producción basta con definir SQLALCHEMY_DATABASE_URI en `.env`
-    # apuntando a PostgreSQL (p. ej. postgresql://user:pass@host/db).
+    # Por defecto usa SQLite en `instance/`. En producción se puede
+    # sobreescribir con SQLALCHEMY_DATABASE_URI (p. ej. PostgreSQL).
+    _BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    _INSTANCE_DIR = os.path.join(_BASE_DIR, "instance")
+    os.makedirs(_INSTANCE_DIR, exist_ok=True)
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "SQLALCHEMY_DATABASE_URI", "sqlite:///" + os.path.join(
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "instance")),
-            "sistema_alimentos.db",
-        )
+        "SQLALCHEMY_DATABASE_URI",
+        "sqlite:///" + os.path.join(_INSTANCE_DIR, "sistema_alimentos.db"),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
