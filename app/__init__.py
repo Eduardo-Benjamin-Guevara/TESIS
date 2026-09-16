@@ -28,7 +28,8 @@ def registrar_errores(app: Flask) -> None:
                 codigo=403,
                 icono="bi-shield-lock",
                 titulo="Acceso denegado",
-                mensaje="No tienes permisos para acceder a este recurso.",
+                mensaje="No tienes permisos para ver esta sección. "
+                "Contacta al administrador si crees que es un error.",
             ),
             403,
         )
@@ -41,7 +42,7 @@ def registrar_errores(app: Flask) -> None:
                 codigo=404,
                 icono="bi-search",
                 titulo="Página no encontrada",
-                mensaje="El recurso que buscas no existe o fue movido.",
+                mensaje="La dirección que escribiste no existe o fue movida.",
             ),
             404,
         )
@@ -54,8 +55,8 @@ def registrar_errores(app: Flask) -> None:
                 "errors/500.html",
                 codigo=500,
                 icono="bi-bug",
-                titulo="Error interno",
-                mensaje="Ocurrió un error inesperado. Inténtalo de nuevo más tarde.",
+                titulo="Algo salió mal",
+                mensaje="Ocurrió un error inesperado. Prueba de nuevo en unos minutos.",
             ),
             500,
         )
@@ -66,6 +67,21 @@ def configurar_logging(app: Flask) -> None:
     logging.basicConfig(
         level=getattr(logging, app.config.get("LOG_LEVEL", "INFO").upper(), logging.INFO)
     )
+
+
+def agregar_cabeceras_seguridad(app: Flask) -> None:
+    """Añade cabeceras de seguridad básicas a todas las respuestas."""
+
+    @app.after_request
+    def _cabeceras_seguridad(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        # HSTS solo en producción (HTTPS)
+        if not app.config.get("DEBUG", False) and not app.config.get("TESTING", False):
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        return response
 
 
 def inicializar_bd(app: Flask) -> None:
@@ -124,6 +140,7 @@ def create_app(config_name: str | None = None) -> Flask:
 
     # Configurar seguridad y logging
     configurar_logging(app)
+    agregar_cabeceras_seguridad(app)
 
     # Flask-Login
     login_manager = LoginManager(app)

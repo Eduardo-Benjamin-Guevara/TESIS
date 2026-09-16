@@ -32,9 +32,10 @@
 
 body {
     margin: 0;
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-family: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
     color: var(--text-primary);
     background: var(--app-bg);
+    -webkit-font-smoothing: antialiased;
 }
 
 /* ---------------------------------------------------------------- Layout */
@@ -486,5 +487,27 @@ body {
     inset: 0;
     background: rgba(0, 0, 0, 0.45);
     z-index: 1035;
+}
+
+/* ---- Accesibilidad: foco visible para navegación por teclado ---- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid rgba(47, 125, 79, 0.55);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Reducir movimiento para quienes lo prefieran */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 

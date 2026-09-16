@@ -148,7 +148,7 @@ lógica), `fecha_creacion`, `fecha_actualizacion`.
 ## Funcionalidades implementadas (V1)
 
 - **Autenticación**: login, logout, sesiones (Flask-Login) y contraseñas con
-  hash seguro (Werkzeug).
+  hash seguro (Werkzeug). Bloqueo temporal tras 5 intentos fallidos.
 - **Protección de rutas**: acceso restringido por autenticación y por rol
   (admin / encargado / consulta) mediante decoradores.
 - **Gestión de usuarios** (solo admin): crear usuarios, activar/desactivar
@@ -161,11 +161,22 @@ lógica), `fecha_creacion`, `fecha_actualizacion`.
   - Filtrar por categoría.
   - Activar/desactivar (baja lógica).
 - **Panel principal** con resumen: total de alimentos y stock bajo.
-- **Interfaz profesional responsive** con sidebar, barra superior,
+- **Interfaz profesional responsive** con sidebar colapsable, barra superior,
   formularios, tablas, mensajes flash y páginas de error (403/404/500).
+- **Loading states** en formularios (spinner en el botón de envío).
 - **Seguridad**: hash de contraseñas, CSRF, variables sensibles en `.env`,
-  uso del ORM (sin SQL inyección), mensajes de error controlados y BCC de
-  baja lógica.
+  cabeceras HTTP de protección (X-Content-Type-Options, X-Frame-Options,
+  Referrer-Policy, Permissions-Policy), uso del ORM (sin SQL inyección) y
+  mensajes de error controlados.
+- **Copias de seguridad**: comandos CLI (`flask backup` y
+  `flask backup-list`) para crear y listar respaldos de la base de datos.
+- **SEO básico**: meta descripción, Open Graph, canonical, favicon SVG,
+  `robots.txt` y `sitemap.xml`.
+- **Rendimiento**: caché de estáticos (7 días), preconnect a CDNs, fuente
+  Nunito con `display=swap`, *cache-busting* en assets.
+- **Accesibilidad**: foco visible, atributos ARIA, `prefers-reduced-motion`.
+- **Datos de demostración**: 26 alimentos, 28 lotes y 53 movimientos
+  sembrados desde el panel o CLI (`flask seed-demo`).
 
 ---
 
@@ -325,6 +336,7 @@ documentado en `docs/sprintN.md`.
 | 5 | `sprint/5` | Funciones innovadoras (gráficos, QR, exportar reportes, recomendaciones, trazabilidad) | ✅ Completado |
 | 6 | `sprint/6` | Usabilidad y profesionalismo (notificaciones funcionales, tema claro/oscuro, responsive y extras) | ✅ Completado |
 | 7 | `sprint/7` | Datos de simulación (alimentos, lotes, movimientos demo; carga por CLI y panel) | ✅ Completado |
+| 8 | `sprint/8` | Pulido profesional (SEO, seguridad, copias de seguridad, errores 403/404/500, rendimiento, UX y accesibilidad) | ✅ Completado |
 
 Cada sprint incluye: **pruebas funcionales, verificación de requerimientos,
 identificación y corrección de errores, y evaluación del incremento**.
@@ -342,7 +354,11 @@ arquitectura ya está preparada para ello).
 - Las contraseñas se almacenan únicamente como hash (Werkzeug).
 - Todos los formularios están protegidos contra CSRF.
 - Las rutas sensibles verifican autenticación y rol.
-- Las variables sensibles se gestionan mediante variables de entorno.
+- Las variables sensibles se gestionan mediante variables de entorno (`.env`).
 - Las consultas se realizan a través del ORM (SQLAlchemy) para evitar
   inyección SQL.
 - La eliminación de registros es lógica (no se destruyen datos).
+- Cabeceras HTTP de protección: `X-Content-Type-Options`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy` y HSTS (en producción).
+- Bloqueo temporal tras 5 intentos fallidos de acceso.
+- Copias de seguridad accesibles por CLI (`flask backup`).

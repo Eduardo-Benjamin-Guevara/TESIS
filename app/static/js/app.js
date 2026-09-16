@@ -114,6 +114,8 @@
         var notifList = document.getElementById("notifList");
         var notifCount = document.getElementById("notifCount");
         var markAllBtn = document.getElementById("notifMarkAll");
+        var notifWrap = document.querySelector(".notif-wrap");
+        var userMenu = document.querySelector(".user-menu");
 
         function actualizarBadge(n) {
             if (!notifCount) { return; }
@@ -213,11 +215,11 @@
 
         // Cierra panel/menú al hacer clic fuera
         document.addEventListener("click", function (e) {
-            if (notifPanel && !notifPanel.hidden && !notifWrap.contains(e.target)) {
+            if (notifPanel && notifWrap && !notifPanel.hidden && !notifWrap.contains(e.target)) {
                 notifPanel.hidden = true;
                 if (notifToggle) { notifToggle.setAttribute("aria-expanded", "false"); }
             }
-            if (userDropdown && !userDropdown.hidden && !userMenu.contains(e.target)) {
+            if (userDropdown && userMenu && !userDropdown.hidden && !userMenu.contains(e.target)) {
                 userDropdown.hidden = true;
                 if (userToggle) { userToggle.setAttribute("aria-expanded", "false"); }
             }
@@ -231,6 +233,24 @@
                     bootstrap.Alert.getOrCreateInstance(alert).close();
                 }
             }, 6000);
+        });
+
+        // ---- Loading state en formularios ----
+        // Al enviar un formulario, el botón submit muestra un spinner para
+        // indicar progreso y evitar dobles envíos.
+        document.querySelectorAll("form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                var btn = form.querySelector('button[type="submit"]');
+                if (!btn || btn.hasAttribute("data-no-loading") || btn.classList.contains("disabled")) {
+                    return;
+                }
+                var etiqueta = btn.textContent.trim().replace(/\s+/g, " ");
+                btn.classList.add("disabled");
+                btn.setAttribute("aria-busy", "true");
+                btn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' +
+                    '<span class="btn-label">' + etiqueta + '</span>';
+            });
         });
     });
 

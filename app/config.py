@@ -38,6 +38,10 @@ class BaseConfig:
     # WTF / CSRF
     WTF_CSRF_TIME_LIMIT = 3600
 
+    # Rendimiento: cachear assets estáticos durante 7 días (los cambios
+    # se versionan con ?v=N en las plantillas).
+    SEND_FILE_MAX_AGE_DEFAULT = timedelta(days=7)
+
     # Logs
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 
@@ -46,6 +50,9 @@ class BaseConfig:
     ADMIN_USUARIO = os.environ.get("ADMIN_USUARIO", "admin")
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
     ADMIN_ROL = os.environ.get("ADMIN_ROL", "admin")
+
+    # Analytics opcional (Google Analytics/Gtag). Vacío = desactivado.
+    ANALYTICS_TAG = os.environ.get("ANALYTICS_TAG", "")
 
 
 class DevelopmentConfig(BaseConfig):

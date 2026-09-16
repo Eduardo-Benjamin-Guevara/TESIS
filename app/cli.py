@@ -69,3 +69,28 @@ def registrar_cli(app: Flask) -> None:
             f"{resumen['lotes']} lotes, {resumen['movimientos']} movimientos."
         )
         click.echo(f"Usuario demo: {resumen['usuario_demo']} / {PASSWORD_DEMO}")
+
+    @app.cli.command("backup")
+    @click.option("--destino", "-o", default=None, help="Ruta del archivo de respaldo (por defecto en backups/).")
+    @with_appcontext
+    def backup_command(destino: str | None):
+        """Crea una copia de seguridad de la base de datos (SQLite)."""
+        from app.services.backup_service import crear_backup
+
+        ruta = crear_backup(destino)
+        click.echo(f"[OK] Copia de seguridad creada: {ruta}")
+
+    @app.cli.command("backup-list")
+    @with_appcontext
+    def backup_list_command():
+        """Lista las copias de seguridad existentes."""
+        from app.services.backup_service import listar_backups
+
+        backups = listar_backups()
+        if not backups:
+            click.echo("No hay copias de seguridad.")
+            return
+        click.echo("Respaldo | Fecha | Tamaño")
+        click.echo("-" * 50)
+        for item in backups:
+            click.echo(f"{item['archivo']} | {item['fecha']} | {item['tamano']}")

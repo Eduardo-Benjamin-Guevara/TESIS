@@ -12,6 +12,35 @@ from app.services import (
 bp = Blueprint("main", __name__)
 
 
+@bp.route("/robots.txt")
+def robots():
+    """Permite a los buscadores indexar el sitio (SEO básico)."""
+    texto = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /login\n"
+        "Disallow: /demo/\n"
+        f"Sitemap: {request.url_root}sitemap.xml\n"
+    )
+    return texto, 200, {"Content-Type": "text/plain"}
+
+
+@bp.route("/sitemap.xml")
+def sitemap():
+    """Sitemap XML con las rutas públicas del sistema (SEO básico)."""
+    rutas = ["/", "/login"]
+    base = request.url_root.rstrip("/")
+    urls = "\n".join(
+        f"  <url><loc>{base}{ruta}</loc></url>" for ruta in rutas
+    )
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{urls}
+</urlset>
+"""
+    return xml, 200, {"Content-Type": "application/xml"}
+
+
 @bp.route("/health")
 def health():
     """Comprobación de salud para pingers (mantiene vivo el servicio)."""
