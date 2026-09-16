@@ -89,37 +89,58 @@ def inicializar_bd(app: Flask) -> None:
 
     Es idempotente y segura: si la base de datos ya tiene datos, no los
     duplica. Se llama al crear la app para que, en cualquier entorno
-    (Local, Render, etc.), las tablas y los datos iniciales existan.
+    (Local, Render, Vercel, etc.), las tablas y los datos iniciales existan.
+
+    En plataformas serverless (Vercel) varios procesos pueden arrancar a la
+    vez y ejecutar esta rutina en paralelo contra la misma base de datos.
+    Para evitarlo, el sembrado se reintenta si ocurre una colisión de claves
+    únicas (otro proceso ya creó esos registros); basta con hacer rollback y
+    comprobar de nuevo.
     """
     from sqlalchemy import inspect as sa_inspect
+    from sqlalchemy.exc import IntegrityError
 
     from app.services.simulacion_service import (
         existen_datos_demo,
         generar_datos_demo,
     )
 
+    def _sembrar() -> None:
+        """Ejecuta la secuencia completa de siembra."""
+        from app.models.usuario import Usuario
+        from app.services.init_services import (
+            crear_admin_inicial,
+            sembrar_categorias,
+        )
+
+        sembrar_categorias()
+        if not Usuario.query.filter_by(rol="admin").first():
+            crear_admin_inicial()
+        if not existen_datos_demo():
+            generar_datos_demo()
+
     with app.app_context():
         if "categorias" in sa_inspect(db.engine).get_table_names():
             # La BD ya tiene tablas: solo aseguramos datos mínimos
-            from app.models.usuario import Usuario
-            from app.services.init_services import sembrar_categorias
-
-            sembrar_categorias()
-            if not Usuario.query.filter_by(rol="admin").first():
-                from app.services.init_services import crear_admin_inicial
-
-                crear_admin_inicial()
-            if not existen_datos_demo():
-                generar_datos_demo()
+            for intento in range(4):
+                try:
+                    _sembrar()
+                    break
+                except IntegrityError:
+                    if intento == 3:
+                        raise
+                    db.session.rollback()
         else:
             # BD vacía: creamos todo desde cero
             db.create_all()
-            from app.services.init_services import sembrar_categorias, crear_admin_inicial
-
-            sembrar_categorias()
-            crear_admin_inicial()
-            if not existen_datos_demo():
-                generar_datos_demo()
+            for intento in range(4):
+                try:
+                    _sembrar()
+                    break
+                except IntegrityError:
+                    if intento == 3:
+                        raise
+                    db.session.rollback()
 
 
 def create_app(config_name: str | None = None) -> Flask:

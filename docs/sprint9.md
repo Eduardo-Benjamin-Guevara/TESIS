@@ -12,12 +12,22 @@ letras y tonalidades).
 
 1. **Migración de hosting: Render → Vercel**
    - Entry point WSGI detectable automáticamente: `api/index.py` exporta `app`.
-   - `vercel.json`: rewrites de todas las rutas a `api/index` + caché de
-     estáticos (7 días, `immutable`).
+   - `vercel.json`: **sin rewrites** (Vercel detecta Flask y enruta cada petición a
+     la función conservando el path original; reescribir `/` → `/api/index`
+     rompía las rutas devolviendo 404). Solo define cabeceras de caché para
+     estáticos.
+   - Estáticos en `public/static/`: Vercel **no soporta `app.static_folder`** de
+     Flask; los archivos deben estar en `public/` para servirse desde el CDN con
+     el MIME correcto. Flask apunta `static_folder` a `public/static` para que
+     en local la URL `/static/...` siga funcionando.
    - `.vercelignore`: excluye `venv/`, `instance/`, `backups/`, `.env`, etc.
    - **PostgreSQL persistente**: serverless = filesystem efímero, por lo que
      SQLite no sirve. Se añadió `psycopg2-binary` y soporte de `DATABASE_URL`
      en `config.py` (con prioridad sobre `SQLALCHEMY_DATABASE_URI`).
+   - **Siembra tolerante a concurrencia**: varios cold starts importan la app en
+     paralelo y competían por insertar el usuario `demo` (UniqueViolation).
+     `inicializar_bd` ahora reintenta hasta 4 veces ante `IntegrityError`
+     (rollback + re-verificación), quedando idempotente en serverless.
    - Tolerancia a filesystem de solo lectura: `os.makedirs` en `config.py` y
      en la fábrica (`app/__init__.py`) ahora se protegen con `try/except`.
    - El arranque es idempotente: crea tablas, admin y datos demo en una base
@@ -47,11 +57,11 @@ letras y tonalidades).
 | Archivo | Cambio |
 |---|---|
 | `api/index.py` | **Nuevo**: entry point WSGI (`app`) para Vercel |
-| `vercel.json` | **Nuevo**: rewrites + headers de caché para estáticos |
+| `vercel.json` | **Nuevo**: cabeceras de caché para estáticos (sin rewrites) |
 | `.vercelignore` | **Nuevo**: excluye archivos locales del bundle |
 | `requirements.txt` | Añade `psycopg2-binary` para PostgreSQL |
 | `app/config.py` | Soporta `DATABASE_URL`, `makedirs` tolerante a solo lectura |
-| `app/__init__.py` | `makedirs` protegido (serverless) |
+| `app/__init__.py` | `makedirs` protegido (serverless) + siembra con reintento por `IntegrityError` |
 | `app/static/css/app.css` → `public/static/css/app.css` | Tema oscuro completo (tablas, forms, badges, alerts, modales) |
 | `app/static/css/auth.css` → `public/static/css/auth.css` | Modo oscuro para login/errores |
 | `app/static/js/app.js` → `public/static/js/app.js` | Evento `tema:cambio` |
@@ -72,8 +82,11 @@ letras y tonalidades).
 
 ## Verificación
 
-- **106/106 pruebas automatizadas pasan** (`python -m pytest`).
+- **107/107 pruebas automatizadas pasan** (`python -m pytest`), incluida una
+  prueba nueva que simula la colisión de concurrencia en el sembrado.
 - La app importa correctamente a través del entry point de Vercel
   (`from api.index import app`, 41 rutas registradas).
+- Los estáticos se sirven al arrancar localmente (`/static/css/app.css` →
+  `200 text/css`) y en Vercel desde `public/` por el CDN.
 - Los gráficos se redibujan al alternar el tema; no hay áreas blancas
   huérfanas en el dashboard.

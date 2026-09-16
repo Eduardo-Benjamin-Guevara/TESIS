@@ -102,3 +102,50 @@ def test_backup_cli(runner, monkeypatch):
     assert backup_service.listar_backups(), "debe existir al menos un respaldo"
 
     os.unlink(tmp.name)
+
+
+def test_inicializar_bd_reintenta_colision_concurrencia(app, monkeypatch):
+    """En serverless varios procesos siembran en paralelo: ante un
+    IntegrityError (clave única ya insertada por otro proceso) la
+    inicialización hace rollback e intenta de nuevo sin fallar."""
+    from sqlalchemy.exc import IntegrityError
+
+    from app import inicializar_bd
+    from app.extensions import db
+    from app.models import Alimento, Usuario
+    from app.services import simulacion_service
+
+    llamadas = {"n": 0}
+    real_generar = simulacion_service.generar_datos_demo
+
+    def generar_con_colision_una_vez(forzar=False):
+        llamadas["n"] += 1
+        if llamadas["n"] == 1:
+            # Simula otro cold start que ya insertó el usuario demo
+            db.session.flush()
+            from app.models import RolUsuario
+
+            usr = Usuario(
+                nombre="Usuario de Demostración",
+                usuario="demo",
+                rol=RolUsuario.ENCARGADO,
+                activo=True,
+            )
+            usr.set_password("demo123")
+            db.session.add(usr)
+            db.session.commit()
+            simulacion_service.logger.info("Otro proceso sembró el usuario demo")
+            raise IntegrityError("colision-demo", {}, ConnectionError("duplicado"))
+        return real_generar(forzar=forzar)
+
+    monkeypatch.setattr(simulacion_service, "generar_datos_demo", generar_con_colision_una_vez)
+
+    with app.app_context():
+        # Forzamos que el patrón de arranque detecte "BD vacía" y la cree
+        db.drop_all()
+        inicializar_bd(app)
+
+        # Se recuperó solo: hay alimentos y un único usuario demo
+        assert Alimento.query.count() > 0
+        assert Usuario.query.filter_by(usuario="demo").count() == 1
+        assert llamadas["n"] == 2
