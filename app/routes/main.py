@@ -1,5 +1,5 @@
 """Rutas principales del panel."""
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.services import (
@@ -10,6 +10,12 @@ from app.services import (
 )
 
 bp = Blueprint("main", __name__)
+
+
+@bp.route("/health")
+def health():
+    """Comprobación de salud para pingers (mantiene vivo el servicio)."""
+    return jsonify({"estado": "ok", "servicio": "sistema-alimentos"})
 
 
 @bp.route("/")
