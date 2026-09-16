@@ -68,6 +68,44 @@ def configurar_logging(app: Flask) -> None:
     )
 
 
+def inicializar_bd(app: Flask) -> None:
+    """Crea las tablas (si no existen) y siembra datos básicos.
+
+    Es idempotente y segura: si la base de datos ya tiene datos, no los
+    duplica. Se llama al crear la app para que, en cualquier entorno
+    (Local, Render, etc.), las tablas y los datos iniciales existan.
+    """
+    from sqlalchemy import inspect as sa_inspect
+
+    from app.services.simulacion_service import (
+        existen_datos_demo,
+        generar_datos_demo,
+    )
+
+    with app.app_context():
+        if "categorias" in sa_inspect(db.engine).get_table_names():
+            # La BD ya tiene tablas: solo aseguramos datos mínimos
+            from app.models.usuario import Usuario
+            from app.services.init_services import sembrar_categorias
+
+            sembrar_categorias()
+            if not Usuario.query.filter_by(rol="admin").first():
+                from app.services.init_services import crear_admin_inicial
+
+                crear_admin_inicial()
+            if not existen_datos_demo():
+                generar_datos_demo()
+        else:
+            # BD vacía: creamos todo desde cero
+            db.create_all()
+            from app.services.init_services import sembrar_categorias, crear_admin_inicial
+
+            sembrar_categorias()
+            crear_admin_inicial()
+            if not existen_datos_demo():
+                generar_datos_demo()
+
+
 def create_app(config_name: str | None = None) -> Flask:
     """Crea y devuelve una instancia configurada de la aplicación."""
     if config_name is None:
@@ -131,6 +169,10 @@ def create_app(config_name: str | None = None) -> Flask:
     from app.cli import registrar_cli
 
     registrar_cli(app)
+
+    # Inicializar base de datos (tablas + datos mínimos) fuera del entorno de prueba
+    if not app.config.get("TESTING", False):
+        inicializar_bd(app)
 
     # Contexto global para plantillas: categorías y resumen de alertas
     @app.context_processor

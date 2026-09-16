@@ -1,1 +1,1 @@
-web: sh build.sh && gunicorn run:app
+web: gunicorn run:app
