@@ -376,7 +376,8 @@ documentado en `docs/sprintN.md`.
 | 6 | `sprint/6` | Usabilidad y profesionalismo (notificaciones funcionales, tema claro/oscuro, responsive y extras) | ✅ Completado |
 | 7 | `sprint/7` | Datos de simulación (alimentos, lotes, movimientos demo; carga por CLI y panel) | ✅ Completado |
 | 8 | `sprint/8` | Pulido profesional (SEO, seguridad, copias de seguridad, errores 403/404/500, rendimiento, UX y accesibilidad) | ✅ Completado |
-| 9 | `sprint/9` | Deploy en Vercel 24/7 con PostgreSQL (Neon), paneles con gráficos adaptables al tema y ajuste global de colores claro/oscuro | 🔄 En curso |
+| 9 | `sprint/9` | Deploy en Vercel 24/7 con PostgreSQL (Neon), paneles con gráficos adaptables al tema y ajuste global de colores claro/oscuro | ✅ Completado |
+| 10 | `sprint/10` | Diagrama de arquitectura del sistema (XML draw.io) y documentación de pruebas aplicadas | ✅ Completado |
 
 Cada sprint incluye: **pruebas funcionales, verificación de requerimientos,
 identificación y corrección de errores, y evaluación del incremento**.
@@ -386,6 +387,55 @@ Para consultar el detalle de cada sprint: `docs/sprintN.md`.
 Se contempla también la migración a **PostgreSQL** en producción (la
 arquitectura ya está preparada para ello).
 
+
+---
+
+## Arquitectura del sistema y pruebas aplicadas (Sprint 10)
+
+### Diagrama de arquitectura (XML)
+
+El diagrama de arquitectura del sistema está disponible en formato **XML de
+draw.io** (se abre directamente en <https://app.diagrams.net> y se puede
+exportar a imagen/PDF para el documento de tesis):
+
+- **`docs/diagrama_arquitectura.drawio`** — contiene **2 páginas**:
+  1. **Arquitectura del sistema**: navegador (cliente) → Vercel (función
+     WSGI Flask) con sus capas (blueprints, servicios, modelos, extensiones,
+     estáticos por CDN) → base de datos PostgreSQL (Neon).
+  2. **Pruebas automatizadas**: flujo de pruebas (cliente de prueba → rutas →
+     servicios → ORM → SQLite en memoria) y el detalle de los 10 módulos de
+     pruebas con su cantidad.
+
+### Pruebas aplicadas
+
+El sistema cuenta con una **suíte automatizada de 107 pruebas** (Pytest) que
+cubre las cuatro capas de la aplicación. Al ejecutarlas se usa una base de
+datos en memoria aislada para cada prueba.
+
+| Módulo de pruebas | Pruebas | Cobertura |
+|---|---|---|
+| `test_acceso.py` | 7 | Rutas protegidas y control por rol |
+| `test_auth.py` | 6 | Login, logout y bloqueo por intentos |
+| `test_alimentos.py` | 11 | CRUD de alimentos, validaciones, búsqueda y filtros |
+| `test_alertas.py` | 11 | Vencen pronto, stock bajo y prioridades |
+| `test_inventario.py` | 12 | Entradas, salidas y actualización de stock |
+| `test_innovacion.py` | 15 | QR, exportación, recomendaciones y trazabilidad |
+| `test_monitoreo.py` | 9 | Dashboard, reportes e indicadores |
+| `test_notificaciones.py` | 11 | Notificaciones y marcado de leídas |
+| `test_profesionalismo.py` | 11 | SEO, seguridad, errores, backups y concurrencia serverless |
+| `test_simulacion.py` | 14 | Generación de datos de simulación |
+| **Total** | **107** | **107/107 aprobadas (100%)** |
+
+El reporte detallado con capturas por prueba se regenera automáticamente:
+
+```bash
+python -m pytest            # ejecuta la suíte (107 pruebas)
+python generar_reportes.py  # genera reporte_tests.html (HTML para presentar)
+```
+
+> Para incluir en el capítulo de la tesis: abrir `docs/diagrama_arquitectura.drawio`,
+> exportar cada página a imagen (PNG/SVG), y adjuntar `reporte_tests.html` como
+> evidencia de las pruebas aplicadas.
 
 ---
 
