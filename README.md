@@ -398,13 +398,13 @@ El diagrama de arquitectura del sistema está disponible en formato **XML de
 draw.io** (se abre directamente en <https://app.diagrams.net> y se puede
 exportar a imagen/PDF para el documento de tesis):
 
-- **`docs/diagrama_arquitectura.drawio`** — contiene **2 páginas**:
-  1. **Arquitectura del sistema**: navegador (cliente) → Vercel (función
-     WSGI Flask) con sus capas (blueprints, servicios, modelos, extensiones,
-     estáticos por CDN) → base de datos PostgreSQL (Neon).
-  2. **Pruebas automatizadas**: flujo de pruebas (cliente de prueba → rutas →
-     servicios → ORM → SQLite en memoria) y el detalle de los 10 módulos de
-     pruebas con su cantidad.
+- **`docs/diagrama_arquitectura.drawio`** — diagrama XML editable (draw.io,
+  abrir en https://app.diagrams.net).
+- **`docs/diagrama_en_texto.md`** — descripción caja por caja para recrear el
+  diagrama en cualquier herramienta (draw.io, Lucidchart, Word, PowerPoint).
+
+Ambos contienen **2 partes**: (1) la arquitectura del sistema y (2) las
+pruebas aplicadas.
 
 ### Pruebas aplicadas
 
