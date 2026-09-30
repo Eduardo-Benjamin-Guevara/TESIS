@@ -378,7 +378,6 @@ documentado en `docs/sprintN.md`.
 | 8 | `sprint/8` | Pulido profesional (SEO, seguridad, copias de seguridad, errores 403/404/500, rendimiento, UX y accesibilidad) | ✅ Completado |
 | 9 | `sprint/9` | Deploy en Vercel 24/7 con PostgreSQL (Neon), paneles con gráficos adaptables al tema y ajuste global de colores claro/oscuro | ✅ Completado |
 | 10 | `sprint/10` | Diagrama de arquitectura del sistema (XML draw.io) y documentación de pruebas aplicadas | ✅ Completado |
-| 11 | `sprint/11` | Asistente inteligente (IA integrada entrenada con corpus del sistema + conector a IA externa opcional) | ✅ Completado |
 
 Cada sprint incluye: **pruebas funcionales, verificación de requerimientos,
 identificación y corrección de errores, y evaluación del incremento**.
@@ -409,7 +408,7 @@ pruebas aplicadas.
 
 ### Pruebas aplicadas
 
-El sistema cuenta con una **suíte automatizada de 124 pruebas** (Pytest) que
+El sistema cuenta con una **suíte automatizada de 107 pruebas** (Pytest) que
 cubre las cuatro capas de la aplicación. Al ejecutarlas se usa una base de
 datos en memoria aislada para cada prueba.
 
@@ -421,67 +420,22 @@ datos en memoria aislada para cada prueba.
 | `test_alertas.py` | 11 | Vencen pronto, stock bajo y prioridades |
 | `test_inventario.py` | 12 | Entradas, salidas y actualización de stock |
 | `test_innovacion.py` | 15 | QR, exportación, recomendaciones y trazabilidad |
-| `test_ia.py` | 17 | Clasificador de intenciones, respuestas con datos reales y API del asistente |
 | `test_monitoreo.py` | 9 | Dashboard, reportes e indicadores |
 | `test_notificaciones.py` | 11 | Notificaciones y marcado de leídas |
 | `test_profesionalismo.py` | 11 | SEO, seguridad, errores, backups y concurrencia serverless |
 | `test_simulacion.py` | 14 | Generación de datos de simulación |
-| **Total** | **124** | **124/124 aprobadas (100%)** |
+| **Total** | **107** | **107/107 aprobadas (100%)** |
 
 El reporte detallado con capturas por prueba se regenera automáticamente:
 
 ```bash
-python -m pytest            # ejecuta la suíte (124 pruebas)
+python -m pytest            # ejecuta la suíte (107 pruebas)
 python generar_reportes.py  # genera reporte_tests.html (HTML para presentar)
 ```
 
 > Para incluir en el capítulo de la tesis: abrir `docs/diagrama_arquitectura.drawio`,
 > exportar cada página a imagen (PNG/SVG), y adjuntar `reporte_tests.html` como
 > evidencia de las pruebas aplicadas.
-
----
-
-## Asistente inteligente (IA — Sprint 11)
-
-El sistema incorpora un **chatbot en español** que entiende preguntas sobre
-el inventario y responde con datos reales de la base de datos. Está disponible
-para usuarios autenticados en **`/ia/`** (menú *Inteligencia artificial →
-Asistente*).
-
-### Componentes
-
-1. **Modelo entrenado integrado** — un clasificador de intenciones TF-IDF +
-   similitud de coseno (implementado sin dependencias pesadas, apto para
-   serverless) entrenado con un corpus de frases en español del dominio
-   (`app/services/ia_service.py`). Reconoce: resumen, stock bajo, vencimientos,
-   vencidos, recomendaciones, categorías, alimentos específicos, movimientos,
-   alertas, saludos y preguntas de uso del sistema.
-2. **Base de conocimiento** — guía de uso de todas las funciones del sistema
-   (registrar alimentos, entradas/salidas, lotes, usuarios, exportar reportes,
-   QR, trazabilidad, alertas, recomendaciones).
-3. **Conector a IA externa (opcional)** — si defines `IA_API_KEY` en el entorno,
-   las preguntas se envían a una **API compatible con OpenAI (Chat Completions)**
-   con un contexto del inventario. Si no está configurada o falla, el sistema
-   usa el asistente integrado (sin costo).
-
-### Variables de entorno (opcionales)
-
-| Variable | Descripción | Por defecto |
-|---|---|---|
-| `IA_API_KEY` | Clave de la IA externa. Vacía = solo asistente integrado | *(vacío)* |
-| `IA_API_URL` | Endpoint compatible con Chat Completions | `https://api.openai.com/v1/chat/completions` |
-| `IA_API_MODEL` | Modelo a usar en la IA externa | `gpt-4o-mini` |
-
-Ejemplo de preguntas que acepta:
-
-```
-¿Cuál es el resumen del inventario?
-¿Qué alimentos tienen stock bajo?
-¿Qué vence pronto?
-¿Qué me recomiendas comprar?
-¿Cuánto stock hay de avena?
-¿Cómo registro un alimento?
-```
 
 ---
 

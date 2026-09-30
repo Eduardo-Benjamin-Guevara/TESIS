@@ -67,14 +67,6 @@ class BaseConfig:
     # Analytics opcional (Google Analytics/Gtag). Vacío = desactivado.
     ANALYTICS_TAG = os.environ.get("ANALYTICS_TAG", "")
 
-    # Asistente inteligente: IA externa opcional (compatible con OpenAI).
-    # Vacío = se usa solo el asistente integrado (modelo entrenado local).
-    IA_API_KEY = os.environ.get("IA_API_KEY", "")
-    IA_API_URL = os.environ.get(
-        "IA_API_URL", "https://api.openai.com/v1/chat/completions"
-    )
-    IA_API_MODEL = os.environ.get("IA_API_MODEL", "gpt-4o-mini")
-
 
 class DevelopmentConfig(BaseConfig):
     """Configuración para desarrollo."""
