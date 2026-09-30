@@ -244,7 +244,50 @@ Requisitos: Python 3.12+.
 
 ---
 
-## Despliegue en Vercel (producción, 24/7)
+## Despliegue gratis (Render.com — recomendado, 100% gratis)
+
+Render es el host gratuito que mantiene el sistema **online de forma continua**
+(sin la función serverless de Vercel). La configuración completa está en
+`render.yaml`: **al conectar el repositorio, Render crea solo el servicio web
+y la base de datos PostgreSQL** (no requiere pasos manuales).
+
+### Pasos (solo 3)
+
+1. Crear cuenta gratis en <https://render.com> (o iniciar sesión con GitHub).
+2. En el dashboard: **New → Blueprint** (o **New +** → *Blueprint*) y pega la
+   URL de este repositorio: `https://github.com/Eduardo-Benjamin-Guevara/TESIS`.
+3. Render lee `render.yaml` y despliega el servicio **control-alimentos** con
+   su PostgreSQL propio. La primera vez tarda ~1-2 min; recarga la página hasta
+   ver el estado **Live**.
+
+Acceso: `https://control-alimentos.onrender.com` (usuario `admin`,
+contraseña `admin123`).
+
+> Render crea automáticamente `SECRET_KEY` y la `DATABASE_URL` de la BD
+> (campos `generateValue` y `fromDatabase` del `render.yaml`), por lo que no
+> hay que copiar nada manualmente.
+
+### Límites del plan gratis de Render
+
+- El servicio **duerme tras 15 min sin tráfico** y tarda ~30-50 s en
+  "despertar" (primera carga lenta en frío; luego va normal).
+- La **base de datos PostgreSQL gratis expira a los 90 días**. Para conservar
+  la BD más tiempo, usa una BD gratuita externa (ej. Neon) y define `DATABASE_URL`.
+- 750 horas/mes de servicio web (suficiente para 24/7 un solo servicio).
+
+### Actualizar el sitio
+
+Cada `git push` a `main` provoca un redeploy automático en Render (igual que
+con Vercel).
+
+---
+
+## Despliegue alternativo en Vercel (serverless)
+
+> ⚠️ Actualmente **no recomendado**: en pruebas el host serverless de Vercel
+> devolvió `FUNCTION_INVOCATION_FAILED` (la función se enfría y el arranque
+> puede exceder el límite). Preferir Render. Se conserva la configuración por
+> si se desea reintentar.
 
 La aplicación está lista para desplegarse en **Vercel** de forma gratuita y
 **sin configuración manual**: Vercel detecta automáticamente la instancia WSGI
@@ -274,7 +317,7 @@ Pasos:
    - `ANALYTICS_TAG=<id de Google Analytics>` (opcional)
 3. Vercel construye el proyecto en cada `push` (Python runtime). No se usa
    build command: la detección es automática (`vercel.json` solo define
-   rewrites a `api/index` y caché de estáticos de 7 días).
+   cabeceras de caché para los estáticos).
 4. El primer arranque crea tablas, el administrador y datos de demostración.
    La primera petición tras un *cold start* puede tardar unos segundos.
 
@@ -378,6 +421,7 @@ documentado en `docs/sprintN.md`.
 | 8 | `sprint/8` | Pulido profesional (SEO, seguridad, copias de seguridad, errores 403/404/500, rendimiento, UX y accesibilidad) | ✅ Completado |
 | 9 | `sprint/9` | Deploy en Vercel 24/7 con PostgreSQL (Neon), paneles con gráficos adaptables al tema y ajuste global de colores claro/oscuro | ✅ Completado |
 | 10 | `sprint/10` | Diagrama de arquitectura del sistema (XML draw.io) y documentación de pruebas aplicadas | ✅ Completado |
+| 12 | `sprint/12` | Migración de hosting a Render.com (gratis, servicio continuo) tras intermitencias del despliegue serverless en Vercel | ✅ Completado |
 
 Cada sprint incluye: **pruebas funcionales, verificación de requerimientos,
 identificación y corrección de errores, y evaluación del incremento**.
