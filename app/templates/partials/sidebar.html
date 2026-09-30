@@ -64,6 +64,11 @@
             {% endif %}
         </a>
 
+        <span class="nav-section">Inteligencia artificial</span>
+        <a href="{{ url_for('ia.index') }}" class="nav-link {{ 'active' if request.blueprint == 'ia' else '' }}">
+            <i class="bi bi-stars"></i><span class="nav-text">Asistente</span>
+        </a>
+
         {% if current_user.es_admin %}
         <span class="nav-section">Administración</span>
         <a href="{{ url_for('usuarios.index') }}" class="nav-link {{ 'active' if request.blueprint == 'usuarios' else '' }}">

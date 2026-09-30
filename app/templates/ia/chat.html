@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Asistente inteligente{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    .ia-chat { display: flex; flex-direction: column; height: calc(100vh - 180px); min-height: 420px; }
+    .ia-mensajes { flex: 1; overflow-y: auto; padding: 1rem 1.25rem; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 0.75rem 0.75rem 0 0; }
+    .ia-burbuja { max-width: 78%; padding: 0.65rem 0.9rem; border-radius: 0.9rem; margin-bottom: 0.6rem; white-space: pre-line; word-wrap: break-word; }
+    .ia-burbuja.usuario { margin-left: auto; background: var(--bs-primary); color: #fff; border-bottom-right-radius: 0.25rem; }
+    .ia-burbuja.asistente { margin-right: auto; background: var(--bs-secondary-bg); border: 1px solid var(--bs-border-color); border-bottom-left-radius: 0.25rem; }
+    .ia-burbuja.asistente strong { font-weight: 700; }
+    .ia-entrada { display: flex; gap: 0.5rem; padding: 0.75rem; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); border-top: 0; border-radius: 0 0 0.75rem 0.75rem; }
+    .ia-chip { font-size: 0.8rem; background: var(--bs-secondary-bg); border: 1px solid var(--bs-border-color); border-radius: 2rem; padding: 0.3rem 0.75rem; color: inherit; }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="page-title mb-1"><i class="bi bi-stars me-2 text-primary"></i>Asistente inteligente</h1>
+        <p class="text-muted mb-0">Pregúntale sobre el inventario, vencimientos, stock bajo o cómo usar el sistema.</p>
+    </div>
+    <a href="{{ url_for('monitoreo.dashboard') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+
+        <!-- Panel de sugerencias rápidas -->
+        <div class="px-3 pt-3 d-flex flex-wrap gap-2">
+            <span class="text-muted small me-1">Prueba:</span>
+            <button type="button" class="btn btn-sm ia-chip" data-sugerencia="¿Cuál es el resumen del inventario?"><i class="bi bi-clipboard-data me-1"></i>Resumen</button>
+            <button type="button" class="btn btn-sm ia-chip" data-sugerencia="¿Qué alimentos tienen stock bajo?"><i class="bi bi-exclamation-triangle me-1"></i>Stock bajo</button>
+            <button type="button" class="btn btn-sm ia-chip" data-sugerencia="¿Qué vence pronto?"><i class="bi bi-calendar2-week me-1"></i>Por vencer</button>
+            <button type="button" class="btn btn-sm ia-chip" data-sugerencia="¿Qué me recomiendas comprar?"><i class="bi bi-cart-check me-1"></i>Comprar</button>
+            <button type="button" class="btn btn-sm ia-chip" data-sugerencia="¿Cómo registro un alimento?"><i class="bi bi-question-circle me-1"></i>Ayuda</button>
+        </div>
+
+        <div class="ia-mensajes" id="iaMensajes" aria-live="polite">
+            <div class="ia-burbuja asistente">
+                ¡Hola! 👋 Soy el asistente inteligente del sistema. Pregúntame sobre
+                el inventario de alimentos o cómo usar cualquier función.
+            </div>
+        </div>
+
+        <div class="ia-entrada">
+            <input type="text" id="iaTexto" class="form-control" placeholder="Escribe tu pregunta aquí..." autocomplete="off" maxlength="500">
+            <button type="button" id="iaEnviar" class="btn btn-primary"><i class="bi bi-send"></i> Enviar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ia.js') }}?v=1"></script>
+{% endblock %}

@@ -193,6 +193,7 @@ def create_app(config_name: str | None = None) -> Flask:
         alertas_bp,
         auth_bp,
         categorias_bp,
+        ia_bp,
         inventario_bp,
         lotes_bp,
         main_bp,
@@ -211,6 +212,7 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(alertas_bp)
     app.register_blueprint(monitoreo_bp)
     app.register_blueprint(notificaciones_bp)
+    app.register_blueprint(ia_bp)
 
     # Registrar errores
     registrar_errores(app)
